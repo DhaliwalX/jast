@@ -6,6 +6,13 @@
 namespace grok {
 namespace parser {
 
+#define EXPECT(tok)     \
+    do {    \
+        if (peek() != tok)  \
+            throw SyntaxError(String("expected a ") + Token::str(tok)); \
+        advance();  \
+    } while (0)
+
 bool IsAssign(TokenType tok)
 {
     return tok >= ASSIGN && tok <= ASSIGN_MOD;
@@ -67,9 +74,7 @@ Expression* Parser::ParseArrayLiteral()
         
         if (tok == RBRACK)
             break;
-        if (tok != COMMA)
-            throw SyntaxError("expected a ',' or ']'");
-        advance();   
+        EXPECT(COMMA); 
     }
 
     return builder()->NewArrayLiteral(std::move(exprs));
@@ -101,13 +106,7 @@ Expression* Parser::ParseObjectLiteral()
         }
 
         advance();
-        tok = peek();
-
-        if (tok != COLON) {
-            throw SyntaxError("expected a ':'");
-        }
-        advance();
-
+        EXPECT(COLON);
         prop = ParseAssignExpression();
         proxy[name] = std::unique_ptr<Expression>(prop);
 
@@ -252,9 +251,7 @@ ExpressionList *Parser::ParseArgumentList()
     ExpressionList* exprs = builder()->NewExpressionList();
 
     auto tok = peek();
-    if (tok != LPAREN)
-        throw SyntaxError("expected a '('");
-    advance();
+    EXPECT(LPAREN);
 
     tok = peek();
     if (tok == RPAREN) {
@@ -565,17 +562,11 @@ Expression* Parser::ParseIfStatement()
     advance();
 
     auto tok = peek();
-    if (tok != LPAREN) 
-        throw SyntaxError("expected a '('");
-    advance();
+    EXPECT(LPAREN);
 
     // parse the condition of if statement
     auto condition = ParseCommaExpression();
-
-    tok = peek();
-    if (tok != RPAREN)
-        throw SyntaxError("expected a ')'");
-    advance();
+    EXPECT(RPAREN);
 
     // parse the body of 'if'
     auto body = ParseStatement();
@@ -597,18 +588,11 @@ Expression* Parser::ParseForStatement()
     // eat 'for'
     advance();
     auto tok = peek();
-
-    if (tok != LPAREN)
-        throw SyntaxError("expected a '('");
-    advance();
+    EXPECT(LPAREN);
 
     // parse 'for ( >>this<< ;...' part
     auto init = ParseExpressionOptional();
-
-    tok = peek();
-    if (tok != SEMICOLON)
-        throw SyntaxError("expected a ';'");
-    advance();
+    EXPECT(SEMICOLON);
 
     Expression* condition;
     if (peek() == SEMICOLON) {
@@ -833,6 +817,90 @@ Expression* Parser::ParseVariableStatement()
             builder()->locator()->loc(), std::move(decl_list));
 }
 
+Expression *Parser::ParseCaseBlock()
+{
+    advance();
+
+    // TODO ::= make it more abstract. use ParseExpression
+    Expression *clause = ParseAssignExpression();
+    EXPECT(COLON);
+    Expression *stmt = ParseStatement();
+
+    return builder()->NewCaseClauseStatement(clause, stmt);
+}
+
+Expression *Parser::ParseDefaultClause()
+{
+    advance();
+
+    EXPECT(COLON);
+    Expression *stmt = ParseStatement();
+    return stmt;
+}
+
+Expression* Parser::ParseSwitchStatement()
+{
+    advance();
+    EXPECT(LPAREN);
+
+    Expression *expr = ParseAssignExpression();
+    EXPECT(RPAREN);
+    EXPECT(LBRACE);
+
+    bool has_default = false;
+    ClausesList *list = builder()->NewClausesList();
+    while (true) {
+        Expression *temp = nullptr;
+        if (peek() == CASE) {
+            temp = ParseCaseBlock();
+            list->PushCase(temp->AsCaseClauseStatement());
+        } else if (peek() == DEFAULT) {
+            if (has_default) {
+                throw SyntaxError("switch statement has already has one default case");
+            }
+            temp = ParseDefaultClause();
+            list->SetDefaultCase(temp);
+            has_default = true;
+        } else if (peek() != RBRACE) {
+            throw SyntaxError("expected a '}'");
+        } else {
+            break;
+        }
+    }
+
+    return builder()->NewSwitchStatement(expr, list);
+}
+
+Expression* Parser::ParseBreakStatement()
+{
+    advance();
+    Expression *label;
+
+    if (peek() == IDENTIFIER) {
+        label = builder()->NewIdentifier(GetIdentifierName());
+    }
+
+    return builder()->NewBreakStatement(label);
+}
+
+Expression* Parser::ParseContinueStatement()
+{
+
+    advance();
+    Expression *label;
+
+    if (peek() == IDENTIFIER) {
+        label = builder()->NewIdentifier(GetIdentifierName());
+    }
+
+    return builder()->NewContinueStatement(label);
+}
+
+Expression* Parser::ParseTryCatchStatement()
+{
+    throw SyntaxError("not yet");
+}
+
 Expression* Parser::ParseStatement()
 {
     auto tok = peek();
@@ -865,6 +933,14 @@ Expression* Parser::ParseStatement()
         return ParseDoWhileStatement();
     case VAR:
         return ParseVariableStatement();
+    case SWITCH:
+        return ParseSwitchStatement();
+    case BREAK:
+        return ParseBreakStatement();
+    case CONTINUE:
+        return ParseContinueStatement();
+    case TRY:
+        return ParseTryCatchStatement();
     }
 }
 

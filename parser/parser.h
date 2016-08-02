@@ -52,14 +52,14 @@ public:
     Expression *ParseVariableStatement();
     Expression *ParseIfStatement();
     Expression *ParseElseBranch();
-    // Expression *ParseContinueStatement();
-    // Expression *ParseBreakStatement();
+    Expression *ParseContinueStatement();
+    Expression *ParseBreakStatement();
     Expression *ParseReturnStatement();
     // Expression *ParseWithStatement();
     // Expression *ParseLabelledStatement();
-    // Expression *ParseSwitchStatement();
+    Expression *ParseSwitchStatement();
     // Expression *ParseThrowStatement();
-    // Expression *ParseTryStatement();
+    Expression *ParseTryCatchStatement();
     // Expression *ParseDebuggerStatement();
 
     Expression *ParseForStatement();
@@ -70,9 +70,8 @@ public:
     std::vector<std::string> ParseParameterList();
     FunctionPrototype *ParseFunctionPrototype();
 
-    // Expression *ParseCaseBlock();
-    // Expression *ParseCaseClause();
-    // Expression *ParseDefaultClause();
+    Expression *ParseCaseBlock();
+    Expression *ParseDefaultClause();
 
     Expression *ParseExpression();
     Expression *ParseExpressionOptional();

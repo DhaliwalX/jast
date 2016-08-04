@@ -23,6 +23,7 @@ STR     (["].*["])|(['].*['])
 <COMMENT2>\*[^/]    ;
 <COMMENT2>\*\/  BEGIN 0;
 [ ]|[\t]       ;
+<<EOF>>     { return EOS; }
 "//"        BEGIN COMMENT1;
 "/*"        BEGIN COMMENT2;
 "("         { return LPAREN; }

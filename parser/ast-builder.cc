@@ -13,6 +13,11 @@ Expression *ASTBuilder::NewNullLiteral()
     return factory()->NewNullLiteral(locator()->loc());
 }
 
+Expression *ASTBuilder::NewUndefinedLiteral()
+{
+    return factory()->NewUndefinedLiteral(locator()->loc());
+}
+
 Expression *ASTBuilder::NewThisHolder()
 {
     return factory()->NewThisHolder(locator()->loc());

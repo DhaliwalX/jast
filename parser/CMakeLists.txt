@@ -25,5 +25,5 @@ set(PARSER_SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/tokens.h
 )
 
-add_library(parser ${PARSER_SOURCE_FILES})
+add_library(JAST ${PARSER_SOURCE_FILES})
 

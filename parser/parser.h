@@ -78,6 +78,8 @@ public:
 
     Declaration *ParseDeclaration();
 
+    Expression *ParseProgram();
+
 private:
     String GetStringLiteral();
     String GetIdentifierName();
@@ -94,6 +96,8 @@ private:
     ASTBuilder *builder_;
     LexerInfo *lex_;
 };
+
+extern Expression *ParseProgram(Parser *parser, String &program);
 
 }
 }

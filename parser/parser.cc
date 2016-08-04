@@ -3,6 +3,8 @@
 #include "parser/ast-builder.h"
 #include "parser/token.h"
 
+#include <sstream>
+
 namespace grok {
 namespace parser {
 
@@ -20,8 +22,6 @@ bool IsAssign(TokenType tok)
 
 Parser::~Parser()
 {
-    delete builder_;
-    delete lex_;
 }
 
 String Parser::GetStringLiteral()
@@ -47,7 +47,11 @@ String Parser::GetIdentifierName()
 
 TokenType Parser::peek()
 {
-    return LexerInfo::peek();
+    TokenType tok = LexerInfo::peek();
+    if (tok == EOS) {
+        std::cout << "END " << std::endl;
+    }
+    return tok;
 }
 
 void Parser::advance()
@@ -536,6 +540,11 @@ Expression* Parser::ParseCommaExpression()
     return builder()->NewCommaExpression(exprs);
 }
 
+Expression *Parser::ParseExpression()
+{
+    return ParseCommaExpression();
+}
+
 Expression* Parser::ParseExpressionOptional()
 {
     auto tok = peek();
@@ -543,7 +552,7 @@ Expression* Parser::ParseExpressionOptional()
     if (tok == SEMICOLON) {
         return builder()->NewUndefinedLiteral();
     } else {
-        return ParseCommaExpression();
+        return ParseExpression();
     }
 }
 
@@ -898,7 +907,34 @@ Expression* Parser::ParseContinueStatement()
 
 Expression* Parser::ParseTryCatchStatement()
 {
-    throw SyntaxError("not yet");
+    Expression *try_block = nullptr;
+    Expression *catch_expr = nullptr;
+    Expression *catch_block = nullptr;
+    Expression *finally = nullptr;
+    EXPECT(TRY);
+    EXPECT(LBRACE);
+
+    try_block = ParseStatement();
+
+    EXPECT(RBRACE);
+    
+    if (peek() == CATCH) {
+        advance();
+        EXPECT(LPAREN);
+        catch_expr = ParseExpression();
+        EXPECT(RPAREN);
+        EXPECT(LBRACE);
+        catch_block = ParseStatement();
+        EXPECT(RBRACE);
+    }
+    if (peek() == FINALLY) {
+        advance();
+        EXPECT(LBRACE);
+        finally = ParseStatement();
+        EXPECT(RBRACE);
+    }
+    return builder()->NewTryCatchStatement(try_block, catch_expr, catch_block,
+        finally);
 }
 
 Expression* Parser::ParseStatement()
@@ -978,8 +1014,9 @@ std::string CreateLLVMLikePointer(size_t pos, size_t len)
 //     return shown;
 // }
 
-Expression* Parser::ParseExpression()
+Expression* Parser::ParseProgram()
 {
+    advance();
     ExpressionList *exprs = builder()->NewExpressionList();
     try {
         while (peek() != EOS) {
@@ -991,6 +1028,19 @@ Expression* Parser::ParseExpression()
     }
 
     return builder()->NewBlockStatement(exprs);
+}
+
+Expression *ParseProgram(Parser *parser, String &program)
+{
+    // create a scanner
+    std::istringstream is{ program };
+    Scanner scanner(is);
+
+    // pass the scanner to Lexer
+    SetScanner(&scanner);
+
+    // parse program and return AST
+    return parser->ParseProgram();
 }
 
 }

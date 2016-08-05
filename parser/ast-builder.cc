@@ -202,6 +202,11 @@ Expression *ASTBuilder::NewSwitchStatement(Expression *expr,
     return factory()->NewSwitchStatement(locator()->loc(), expr, clauses);
 }
 
+Expression *ASTBuilder::NewThrowStatement(Expression *expr)
+{
+    return factory()->NewThrowStatement(locator()->loc(), expr);
+}
+
 }
 }
 

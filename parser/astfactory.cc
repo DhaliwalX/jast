@@ -237,5 +237,11 @@ Expression *ASTFactory::NewSwitchStatement(SourceLocation &loc,
     return new SwitchStatement(loc, expr, clauses);
 }
 
+Expression *ASTFactory::NewThrowStatement(SourceLocation &loc,
+    Expression *expr)
+{
+    return new ThrowStatement(loc, expr);
+}
+
 }
 }

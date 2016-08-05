@@ -136,6 +136,8 @@ public:
     // create a new node representing switch statement
     Expression *NewSwitchStatement(Expression *expr, ClausesList *clauses);
 
+    // create a new node representing throw statement
+    Expression *NewThrowStatement(Expression *expr);
     ASTFactory *factory() { return factory_; }
     SourceLocator *locator() { return locator_; }
 

@@ -58,7 +58,7 @@ public:
     // Expression *ParseWithStatement();
     // Expression *ParseLabelledStatement();
     Expression *ParseSwitchStatement();
-    // Expression *ParseThrowStatement();
+    Expression *ParseThrowStatement();
     Expression *ParseTryCatchStatement();
     // Expression *ParseDebuggerStatement();
 

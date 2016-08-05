@@ -933,6 +933,17 @@ Expression* Parser::ParseTryCatchStatement()
         finally);
 }
 
+// ThrowStatement :
+//      throw [no line terminator] Expression ;
+Expression* Parser::ParseThrowStatement()
+{
+    EXPECT(THROW);
+
+    Expression *expr = ParseExpression();
+
+    return builder()->NewThrowStatement(expr);
+}
+
 Expression* Parser::ParseStatement()
 {
     auto tok = peek();
@@ -973,6 +984,8 @@ Expression* Parser::ParseStatement()
         return ParseContinueStatement();
     case TRY:
         return ParseTryCatchStatement();
+    case THROW:
+        return ParseThrowStatement();
     }
 }
 

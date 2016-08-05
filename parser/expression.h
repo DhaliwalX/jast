@@ -52,6 +52,7 @@ namespace grok { namespace parser {
     M(SwitchStatement)      \
     M(CaseClauseStatement)  \
     M(TryCatchStatement)    \
+    M(ThrowStatement)       \
     M(DoWhileStatement)     \
     M(BlockStatement)       \
     M(FunctionPrototype)    \

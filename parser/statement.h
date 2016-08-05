@@ -95,6 +95,20 @@ public:
 private:
     std::unique_ptr<Expression> label_;
 };
+
+class ThrowStatement : public Expression {
+public:
+    ThrowStatement(SourceLocation &loc, Expression *expr)
+        : Expression(loc), expr_{expr}
+    { }
+
+    DEFINE_NODE_TYPE(ThrowStatement);
+
+    Expression *expr() { return expr_.get(); }
+
+private:
+    std::unique_ptr<Expression> expr_;
+};
   
 class TryCatchStatement : public Expression {
 public:

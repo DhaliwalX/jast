@@ -45,6 +45,9 @@ public:
 
     // returns the current matched string
     static String &GetMatched() { return current_matched_; }
+
+    // restart the lexer
+    static void Restart() { advance(); }
 private:
     static TokenType current_tok_;
     static String current_matched_;

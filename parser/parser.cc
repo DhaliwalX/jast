@@ -47,11 +47,7 @@ String Parser::GetIdentifierName()
 
 TokenType Parser::peek()
 {
-    TokenType tok = LexerInfo::peek();
-    if (tok == EOS) {
-        std::cout << "END " << std::endl;
-    }
-    return tok;
+    return LexerInfo::peek();
 }
 
 void Parser::advance()

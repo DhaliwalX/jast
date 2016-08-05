@@ -27,28 +27,42 @@ int main()
     // read parse loop
     while (true) {
         std::string str;
+
         std::getline(std::cin, str);
+        if (!std::cin)
+            break;
+        std::cout << "Parsing: [" << str << "]" << std::endl;
         Parser *parser = new Parser(&ctx, builder, &lex);
         Expression *ast = nullptr;
-        // create a scanner
-        std::istringstream is{ str };
-        Scanner scanner(is);
+        // // create a scanner
+        // std::istringstream is{ str };
+        // Scanner scanner(is);
 
-        // pass the scanner to Lexer
-        SetScanner(&scanner);
-        while(true) {
+        // // pass the scanner to Lexer
+        // SetScanner(&scanner);
+        // while(true) {
 
-            LexerInfo::advance();
-            auto t = LexerInfo::peek();
-            if (t == EOS || t == ILLEGAL) {
-                std::cout << "EOS" << std::endl;
-                break;
-            }
+        //     LexerInfo::advance();
+        //     auto t = LexerInfo::peek();
+        //     if (t == EOS || t == ILLEGAL) {
+        //         std::cout << "EOS" << std::endl;
+        //         break;
+        //     }
 
-            std::cout << Token::str(t) << std::endl;
+        //     std::cout << Token::str(t) << std::endl;
+        // }
+
+        try {
+            ast = ParseProgram(parser, str);
+        } catch (std::exception &) {
+            std::cout << "\x1b[33mError\x1b[0m" << std::endl;
+            LexerInfo::Restart();
+            delete parser;
+            continue;
         }
         std::cout << "Parsed correctly" << std::endl;
         delete parser;
+        delete ast;
     }
 
     delete builder;

@@ -2,11 +2,12 @@
 #include "parser/lexinfo.h"
 #include <iostream>
 
-#define YY_INPUT(buf, result,max_size)  \
-    {   \
+#define YY_INPUT(buf,result,max_size) \
+    { \
         int c = grok::parser::LexerInfo::ReadChar();  \
-        result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);    \
+        result = (c == -1) ? YY_NULL : (buf[0] = c, 1); \
     }
+
 %}
 %start COMMENT1 COMMENT2
 LNUM    [0-9]+
@@ -23,7 +24,6 @@ STR     (["].*["])|(['].*['])
 <COMMENT2>\*[^/]    ;
 <COMMENT2>\*\/  BEGIN 0;
 [ ]|[\t]       ;
-<<EOF>>     { return EOS; }
 "//"        BEGIN COMMENT1;
 "/*"        BEGIN COMMENT2;
 "("         { return LPAREN; }
@@ -115,6 +115,7 @@ STR     (["].*["])|(['].*['])
 "let"       { return LET; }
 "static"    { return STATIC; }
 "super"     { return SUPER; }
+<<EOF>>     { return EOS; }
 {LNUM}|{DNUM}|{BNUM}|{EXPONENT_DNUM}|{HNUM}   { return NUMBER; }
 {IDENT}     { return IDENTIFIER; }
 {STR}       { return STRING; }
@@ -122,7 +123,7 @@ STR     (["].*["])|(['].*['])
 <*>(.)         { return ILLEGAL; }
 %%
 
-int yywrap() { return 0; }
+int yywrap() { return 1; }
 
 namespace grok {
 namespace parser {
@@ -158,7 +159,7 @@ size_t LexerInfo::GetSeek() { return seek_; }
 
 char Scanner::ReadChar()
 {
-    return is_.get();
+    return is_ ? is_.get() : EOF;
 }
 
 }

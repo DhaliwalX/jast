@@ -24,8 +24,7 @@ private:
 
 enum class ForKind {
     kForOf,
-    kForIn,
-    kForRange
+    kForIn
 };
 
 class ForStatement : public Expression {
@@ -42,6 +41,8 @@ public:
     Expression *condition() { return condition_.get(); }
     Expression *update() { return update_.get(); }
     Expression *body() { return body_.get(); }
+
+    ForKind kind() { return kind_; }
 
 private:
     ForKind kind_;
@@ -213,6 +214,7 @@ public:
     bool HasDefaultCase() { return clauses_->HasDefaultCase(); }
     Expression *default_clause() { return clauses_->def(); }
     ClausesList *clauses() { return clauses_.get(); }
+    Expression *expr() { return expr_.get(); }
 private:
     std::unique_ptr<Expression> expr_;
     std::unique_ptr<ClausesList> clauses_;

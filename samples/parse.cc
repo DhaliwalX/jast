@@ -5,6 +5,8 @@
 #include "parser/source-locator.h"
 #include "parser/token.h"
 
+#include "pretty-printer.h"
+
 #include <iostream>
 #include <sstream>
 int main()
@@ -61,6 +63,9 @@ int main()
             continue;
         }
         std::cout << "Parsed correctly" << std::endl;
+
+        printer::PrettyPrinter p(std::cout, 1);
+        ast->Accept(&p);
         delete parser;
         delete ast;
     }

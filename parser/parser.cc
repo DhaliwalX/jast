@@ -220,7 +220,7 @@ Expression *Parser::ParseMemberExpression()
     }
 
     // if next token is neither '[' or '.'
-    if (peek() != LBRACK && peek() != PERIOD)
+    if (peek() != LBRACK && peek() != PERIOD && peek() != LPAREN)
         return primary;
 
     Expression *temp;

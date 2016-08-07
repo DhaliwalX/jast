@@ -14,9 +14,10 @@ namespace grok { namespace parser {
 #   define EMIT_FUNCTION
 #endif
 
-#define DEFINE_NODE_TYPE(type) \
-    bool Is##type() override { return true; }   \
-    type* As##type() override { return this; }  \
+#define DEFINE_NODE_TYPE(class) \
+    bool Is##class() const override { return true; }   \
+    class* As##class() override { return this; }  \
+    ASTNodeType type() const override { return ASTNodeType::k##class; }  \
     void Accept(ASTVisitor *visitor) override
 
 #define AST_NODE_LIST(M)    \
@@ -66,6 +67,16 @@ class Type;
 AST_NODE_LIST(FORWARD_DECLARE)
 #undef FORWARD_DECLARE
 
+enum class ASTNodeType {
+    kUnknownType,
+#define AST_NODE_TYPE(type) k##type,
+AST_NODE_LIST(AST_NODE_TYPE)
+#undef AST_NODE_TYPE
+    kNrType
+};
+
+extern const char *type_as_string[(int)ASTNodeType::kNrType];
+
 class Expression {
 protected:
     Expression(SourceLocation &loc) :
@@ -75,6 +86,7 @@ public:
     virtual ~Expression() { }
     virtual void Accept(ASTVisitor *visitor) = 0;
     virtual bool ProduceRValue() { return true; }
+    virtual ASTNodeType type() const = 0;
 
 // helper conversion functions
 #define AS_EXPRESSION_FUNCTION(Type)    \
@@ -84,7 +96,7 @@ AST_NODE_LIST(AS_EXPRESSION_FUNCTION)
 
     // helpful for constant folding
 #define IS_EXPRESSION_FUNCTION(Type)    \
-    virtual bool Is##Type() { return false; }
+    virtual bool Is##Type() const { return false; }
 AST_NODE_LIST(IS_EXPRESSION_FUNCTION)
 #undef IS_EXPRESSION_FUNCTION
 

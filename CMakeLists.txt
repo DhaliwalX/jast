@@ -22,3 +22,8 @@ endif()
 
 add_subdirectory(./parser)
 add_subdirectory(./samples)
+
+if (TEST_PARSER)
+    add_subdirectory(./tests)
+endif (TEST_PARSER)
+

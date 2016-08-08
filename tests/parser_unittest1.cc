@@ -20,7 +20,7 @@ std::map<std::string, std::vector<test_function_t>> tests;
     std::string("Entering test: ") + #class + "." + #test_name
 
 #define END_TEST_STRING(class, name)    \
-    std::string("ran ") + #class + "." + #name
+    std::string("ran ") + #class + "." + #name + " [ OK ]"
 
 #define PASSED_TEST_STRING(class, name) \
     std::string("passed ") + #class + "." + #name
@@ -94,11 +94,11 @@ do {   \
 } while (0)
 
 #define TEST_INTEGRAL(nr)   \
-    TEST_INTEGRAL_INTERNAL(Syntax, CheckIntegralLiteral, nr, count)
+    TEST_INTEGRAL_INTERNAL(SimpleSyntax, CheckIntegralLiteral, nr, count)
 
-TEST(Syntax, CheckIntegralLiteral) {
-    DECLARE_TEST(Syntax, CheckIntegralLiteral);
-    TEST_SETUP(Syntax, CheckIntegralLiteral);
+TEST(SimpleSyntax, CheckIntegralLiteral) {
+    DECLARE_TEST(SimpleSyntax, CheckIntegralLiteral);
+    TEST_SETUP(SimpleSyntax, CheckIntegralLiteral);
 
     {
         std::string input;
@@ -119,7 +119,7 @@ TEST(Syntax, CheckIntegralLiteral) {
         TEST_INTEGRAL(0xdefDEF);
     }
 
-    TEST_TEARDOWN(Syntax, CheckIntegralLiteral);
+    TEST_TEARDOWN(SimpleSyntax, CheckIntegralLiteral);
 }
 
 #define TEST_STRING_INTERNAL(class, name, c, count)  \
@@ -136,11 +136,11 @@ do {   \
 } while (0)
 
 #define TEST_STRING(c)   \
-    TEST_STRING_INTERNAL(Syntax, CheckStringLiteral, c, count)
+    TEST_STRING_INTERNAL(SimpleSyntax, CheckStringLiteral, c, count)
 
-TEST(Syntax, CheckStringLiteral) {
-    DECLARE_TEST(Syntax, CheckStringLiteral);
-    TEST_SETUP(Syntax, CheckStringLiteral);
+TEST(SimpleSyntax, CheckStringLiteral) {
+    DECLARE_TEST(SimpleSyntax, CheckStringLiteral);
+    TEST_SETUP(SimpleSyntax, CheckStringLiteral);
 
     {
         std::string input;
@@ -153,50 +153,50 @@ TEST(Syntax, CheckStringLiteral) {
         TEST_STRING("\'101010\'");
     }
 
-    TEST_TEARDOWN(Syntax, CheckStringLiteral);    
+    TEST_TEARDOWN(SimpleSyntax, CheckStringLiteral);    
 }
 
 #undef TEST_STRING
 
-TEST(Syntax, CheckNullLiteral) {
-    DECLARE_TEST(Syntax, CheckNullLiteral);
-    TEST_SETUP(Syntax, CheckNullLiteral);
+TEST(SimpleSyntax, CheckNullLiteral) {
+    DECLARE_TEST(SimpleSyntax, CheckNullLiteral);
+    TEST_SETUP(SimpleSyntax, CheckNullLiteral);
 
     {
         std::string input;
         int count = 1;
 
-        LOG_TEST_CASE(Syntax, CheckNullLiteral, "null", count);
+        LOG_TEST_CASE(SimpleSyntax, CheckNullLiteral, "null", count);
         input = "null";
         input.push_back(';');
         std::unique_ptr<Expression> a{ ParseProgram(parser, input) };
         ASSERT_EQUAL(a->type(), ASTNodeType::kBlockStatement);
         Expression *ast = GET_STATEMENT(a, 0);
         ASSERT_EQUAL(ast->type(), ASTNodeType::kNullLiteral);
-        LOG_TEST_CASE_PASSED(Syntax, CheckNullLiteral, input, count);        
+        LOG_TEST_CASE_PASSED(SimpleSyntax, CheckNullLiteral, input, count);        
     }
 
-    TEST_TEARDOWN(Syntax, CheckNullLiteral);
+    TEST_TEARDOWN(SimpleSyntax, CheckNullLiteral);
 }
-TEST(Syntax, CheckUndefinedLiteral) {
-    DECLARE_TEST(Syntax, CheckUndefinedLiteral);
-    TEST_SETUP(Syntax, CheckUndefinedLiteral);
+TEST(SimpleSyntax, CheckUndefinedLiteral) {
+    DECLARE_TEST(SimpleSyntax, CheckUndefinedLiteral);
+    TEST_SETUP(SimpleSyntax, CheckUndefinedLiteral);
 
     {
         std::string input;
         int count = 1;
 
-        LOG_TEST_CASE(Syntax, CheckUndefinedLiteral, "undefined", count);
+        LOG_TEST_CASE(SimpleSyntax, CheckUndefinedLiteral, "undefined", count);
         input = "undefined";
         input.push_back(';');
         std::unique_ptr<Expression> a{ ParseProgram(parser, input) };
         ASSERT_EQUAL(a->type(), ASTNodeType::kBlockStatement);
         Expression *ast = GET_STATEMENT(a, 0);
         ASSERT_EQUAL(ast->type(), ASTNodeType::kIdentifier);
-        LOG_TEST_CASE_PASSED(Syntax, CheckUndefinedLiteral, input, count);
+        LOG_TEST_CASE_PASSED(SimpleSyntax, CheckUndefinedLiteral, input, count);
     }
 
-    TEST_TEARDOWN(Syntax, CheckUndefinedLiteral);
+    TEST_TEARDOWN(SimpleSyntax, CheckUndefinedLiteral);
 }
 
 #define TEST_BOOL_INTERNAL(class, name, c, count)  \
@@ -213,11 +213,11 @@ do {   \
 } while (0)
 
 #define TEST_BOOL(c)   \
-    TEST_BOOL_INTERNAL(Syntax, CheckBooleanLiteral, c, count)
+    TEST_BOOL_INTERNAL(SimpleSyntax, CheckBooleanLiteral, c, count)
 
-TEST(Syntax, CheckBooleanLiteral) {
-    DECLARE_TEST(Syntax, CheckStringLiteral);
-    TEST_SETUP(Syntax, CheckStringLiteral);
+TEST(SimpleSyntax, CheckBooleanLiteral) {
+    DECLARE_TEST(SimpleSyntax, CheckStringLiteral);
+    TEST_SETUP(SimpleSyntax, CheckStringLiteral);
 
     {
         std::string input;
@@ -227,33 +227,33 @@ TEST(Syntax, CheckBooleanLiteral) {
         TEST_BOOL(true);
     }
 
-    TEST_TEARDOWN(Syntax, CheckStringLiteral);    
+    TEST_TEARDOWN(SimpleSyntax, CheckStringLiteral);    
 }
 
-TEST(Syntax, CheckThisHolder) {
-    DECLARE_TEST(Syntax, CheckThisHolder);
-    TEST_SETUP(Syntax, CheckThisHolder);
+TEST(SimpleSyntax, CheckThisHolder) {
+    DECLARE_TEST(SimpleSyntax, CheckThisHolder);
+    TEST_SETUP(SimpleSyntax, CheckThisHolder);
 
     {
         std::string input;
         int count = 1;
 
-        LOG_TEST_CASE(Syntax, CheckThisHolder, "this", count);
+        LOG_TEST_CASE(SimpleSyntax, CheckThisHolder, "this", count);
         input = "this";
         input.push_back(';');
         std::unique_ptr<Expression> a{ ParseProgram(parser, input) };
         ASSERT_EQUAL(a->type(), ASTNodeType::kBlockStatement);
         Expression *ast = GET_STATEMENT(a, 0);
         ASSERT_EQUAL(ast->type(), ASTNodeType::kThisHolder);
-        LOG_TEST_CASE_PASSED(Syntax, CheckThisHolder, input, count);
+        LOG_TEST_CASE_PASSED(SimpleSyntax, CheckThisHolder, input, count);
     }
 
-    TEST_TEARDOWN(Syntax, CheckUndefinedLiteral);
+    TEST_TEARDOWN(SimpleSyntax, CheckUndefinedLiteral);
 }
 
 #define TEST_IDENTIFIER(id) \
     do {   \
-        LOG_TEST_CASE(Syntax, CheckIdentifier, id, count);  \
+        LOG_TEST_CASE(SimpleSyntax, CheckIdentifier, id, count);  \
         input = id; \
         input.push_back(';');   \
         std::unique_ptr<Expression> a{ ParseProgram(parser, input) };   \
@@ -261,12 +261,12 @@ TEST(Syntax, CheckThisHolder) {
         Expression *ast = GET_STATEMENT(a, 0);  \
         ASSERT_EQUAL(ast->type(), ASTNodeType::kIdentifier);    \
         ASSERT_EQUAL(ast->AsIdentifier()->GetName(), id);   \
-        LOG_TEST_CASE_PASSED(Syntax, CheckIdentifier, id, count);\
+        LOG_TEST_CASE_PASSED(SimpleSyntax, CheckIdentifier, id, count);\
     } while (0)
 
-TEST(Syntax, CheckIdentifier) {
-    DECLARE_TEST(Syntax, CheckIdentifier);
-    TEST_SETUP(Syntax, CheckIdentifier);
+TEST(SimpleSyntax, CheckIdentifier) {
+    DECLARE_TEST(SimpleSyntax, CheckIdentifier);
+    TEST_SETUP(SimpleSyntax, CheckIdentifier);
 
     {
         std::string input;
@@ -279,8 +279,12 @@ TEST(Syntax, CheckIdentifier) {
         TEST_IDENTIFIER("_prince_1924023_dhaliwal");
     }
 
-    TEST_TEARDOWN(Syntax, CheckUndefinedLiteral);
+    TEST_TEARDOWN(SimpleSyntax, CheckUndefinedLiteral);
 }
+
+// TEST(SimpleSyntax, CheckArgumentList) {
+
+// }
 
 }
 

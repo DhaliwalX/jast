@@ -22,7 +22,22 @@ bool MatchArrayLiteral(ArrayLiteral *a, ArrayLiteral *b)
 
 bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
 {
-    
+    auto &a_object = a->proxy();
+    auto &b_object = b->proxy();
+
+    if (a_object.size() != b_object.size())
+        return false;
+
+    for (auto &p : a_object) {
+        if ((auto it = b_object.find(p.first)) != b_object.end()) {
+            if (!FastASTMatcher::match(it->second.get(), p.second))
+                return false;
+        } else {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool FastASTMatcher::match(Expression *a, Expression *b)

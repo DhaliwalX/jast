@@ -40,6 +40,27 @@ bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
     return true;
 }
 
+bool MatchIdentifier(Identifier *a, Identifier *b)
+{
+    return a->GetName() == b->GetName();
+}
+
+bool MatchBooleanLiteral(BooleanLiteral *a, BooleanLiteral *b)
+{
+    return a->pred() == b->pred();
+}
+
+bool MatchRegExpLiteral(RegExpLiteral *a, RegExpLiteral *b)
+{
+    // TODO;
+    return false;
+}
+
+bool MatchArgumentList(ArgumentList *a, ArgumentList *b)
+{
+
+}
+
 bool FastASTMatcher::match(Expression *a, Expression *b)
 {
     // TODO := write code here...

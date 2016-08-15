@@ -198,6 +198,8 @@ public:
 
     iterator begin() { return cases_.begin(); }
     iterator end() { return cases_.end(); }
+
+    auto Size() { return cases_.size(); }
 private:
     std::unique_ptr<Expression> default_;
     std::vector<CaseClauseStatement*> cases_;

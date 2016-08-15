@@ -4,6 +4,8 @@ set(PARSER_SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/astvisitor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/astfactory.h
 	${CMAKE_CURRENT_SOURCE_DIR}/astfactory.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/ast-match.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ast-match.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/ast-builder.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ast-builder.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/common.h

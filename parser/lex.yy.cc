@@ -962,6 +962,7 @@ char *yytext;
 #define COMMENT1 1
 #define COMMENT2 2
 
+#define YY_NO_UNISTD_H 0
 #ifndef YY_NO_UNISTD_H
 /* Special case for "unistd.h", since it is non-ANSI. We include it way
  * down here because we want the user's section 1 to have been scanned first.
@@ -2228,7 +2229,7 @@ static void yy_load_buffer_state  (void)
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+        b->yy_is_interactive = true;
     
 	errno = oerrno;
 }

@@ -2,12 +2,11 @@
 #define SOURCE_LOCATOR_H_
 
 #include <cctype>
+#include "parser/lexinfo.h"
 
 namespace grok {
 namespace parser {
-class LexerInfo;
 
-using size_t = std::size_t;
 class SourceLocation final {
 public:
     explicit SourceLocation(size_t pos)

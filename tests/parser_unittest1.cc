@@ -4,64 +4,7 @@
 #include "parser/lexinfo.h"
 #include "parser/source-locator.h"
 #include "parser/token.h"
-
-#include <iostream>
-#include <cassert>
-#include <map>
-#include <vector>
-
-typedef void(*test_function_t)(void);
-std::map<std::string, std::vector<test_function_t>> tests;
-
-#define INTRO(class, name) \
-    std::string(#class) + "." + #name
-
-#define ENTER_TEST_STRING(class, test_name)  \
-    std::string("Entering test: ") + #class + "." + #test_name
-
-#define END_TEST_STRING(class, name)    \
-    std::string("ran ") + #class + "." + #name + " [ OK ]"
-
-#define PASSED_TEST_STRING(class, name) \
-    std::string("passed ") + #class + "." + #name
-
-#define LOG(prefix, msg)  \
-    std::cerr << "[ " << prefix << " ] " << msg << std::endl
-
-#define LOG_START(class, name)    \
-    LOG("START", ENTER_TEST_STRING(class, name))
-
-#define LOG_END(class, name)  \
-    LOG("END", END_TEST_STRING(class, name))
-
-#define LOG_SUCCESS(class, name)    \
-    LOG("PASSED", PASSED_TEST_STRING(class, name)) 
-
-#define ASSERT_EQUAL(a, b)  \
-    assert((a == b))
-
-#define ASSERT_NOT_EQUAL(a, b)  \
-    assert(!(a == b))
-
-#define DECLARE_TEST(class, name)
-
-#define TEST_SETUP(class, test_name)   \
-    using namespace grok::parser;   \
-    ParserContext ctx{};    \
-    LexerInfo lex;  \
-    SourceLocator locator(&lex);    \
-    ASTFactory *factory = ASTFactory::GetFactoryInstance(); \
-    ASTBuilder *builder = new ASTBuilder(&ctx, factory, &locator);  \
-    Parser *parser = new Parser(&ctx, builder, &lex);   \
-    LOG_START(class, test_name)
-
-#define TEST_TEARDOWN(class, test_name)    \
-    delete parser;  \
-    delete builder; \
-    LOG_END(class, test_name)
-
-#define TEST(class, name)   \
-    void name()
+#include "tests/common.h"
 
 namespace {
 

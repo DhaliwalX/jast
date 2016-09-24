@@ -26,13 +26,32 @@ public:
         : parent_{ lexer }, cache_{ 0 }
     { }
 
-    LexerInfo *parent() { return parent_; }
+    virtual SourceLocation &loc();
     SourceLocation &cache() { return cache_; }
 
-    SourceLocation &loc();
+protected:
+    LexerInfo *parent() { return parent_; }
+
 private:
     LexerInfo *parent_;
     SourceLocation cache_;
+};
+
+// DummySourceLocator ::= used for testing purposes or when you don't want
+// to note down position
+class DummySourceLocator : public SourceLocator {
+public:
+    DummySourceLocator()
+        : SourceLocator(nullptr), loc_{ 0 }
+    { }
+
+    SourceLocation &loc()
+    {
+        return loc_;
+    }
+
+private:
+    SourceLocation loc_;
 };
 
 }

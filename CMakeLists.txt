@@ -20,7 +20,7 @@ if (NOT WIN32)
 	else()
     		message(FATAL_ERROR "Compiler ${CMAKE_CXX_COMPILER} has no C++14 support.")
 	endif()
-endif(WIN32)
+endif(NOT WIN32)
 
 add_subdirectory(./parser)
 add_subdirectory(./samples)

@@ -73,5 +73,12 @@ std::map<std::string, std::vector<test_function_t>> tests;
     void name()
 
 
+class GrokTest {
+public:
+    virtual ~GrokTest() {}
+    virtual void setup() = 0;
+    virtual void teardown() = 0;
+};
+
 #endif
     

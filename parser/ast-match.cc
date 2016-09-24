@@ -27,7 +27,7 @@ bool MatchArrayLiteral(ArrayLiteral *a, ArrayLiteral *b)
         if (a_exprs.size() != b_exprs.size())
             return false;
 
-		for (int i = 0; i < a_exprs.size(); i++) {
+		for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
             if (!FastASTMatcher::match(a_exprs[i].get(), b_exprs[i].get()))
                 return false;
         }
@@ -142,7 +142,7 @@ bool MatchDeclarationList(DeclarationList *a, DeclarationList *b)
     auto &a_exprs = a->exprs();
     auto &b_exprs = b->exprs();
 
-    for (int i = 0; i < a_exprs.size(); i++) {
+    for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
         if (!MatchDeclaration(a_exprs[i].get(), b_exprs[i].get()))
             return false;
     }
@@ -216,7 +216,7 @@ bool MatchClausesList(ClausesList *a, ClausesList *b)
         || a->Size() != b->Size())
         return false;
 
-    for (auto i = 0; i < a->Size(); i++) {
+    for (decltype(a->Size()) i = 0; i < a->Size(); i++) {
         if (!MatchCaseClauseStatement(*(a->begin() + i), *(b->begin() + i)))
             return false;
     }

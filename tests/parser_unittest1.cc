@@ -220,6 +220,11 @@ TEST(SimpleSyntax, CheckIdentifier) {
         TEST_IDENTIFIER("_0");
         TEST_IDENTIFIER("_");
         TEST_IDENTIFIER("_prince_1924023_dhaliwal");
+        TEST_IDENTIFIER("$");
+        TEST_IDENTIFIER("$$");
+        TEST_IDENTIFIER("$prince");
+        TEST_IDENTIFIER("$prince123_$");
+        TEST_IDENTIFIER("$_");
     }
 
     TEST_TEARDOWN(SimpleSyntax, CheckUndefinedLiteral);

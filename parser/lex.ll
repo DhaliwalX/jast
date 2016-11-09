@@ -15,7 +15,7 @@ DNUM    ([0-9]*[\.][0-9]+)|([0-9]+[\.][0-9]*)
 BNUM    "0b"[01]+
 EXPONENT_DNUM   (({LNUM}|{DNUM})[eE][+-]?{LNUM})
 HNUM    "0x"[0-9a-fA-F]+
-IDENT   [a-zA-Z_][a-zA-Z_0-9]*
+IDENT   [a-zA-Z_$][a-zA-Z_$0-9]*
 STR     (["].*["])|(['].*['])
 %%
 <COMMENT1>.+    ;

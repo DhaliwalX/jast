@@ -7,7 +7,7 @@ namespace parser {
 ASTFactory *ASTFactory::GetFactoryInstance()
 {
     static std::unique_ptr<ASTFactory> factory_instance;
-    
+
     if (!factory_instance) {
         factory_instance.reset(new ASTFactory());
     }
@@ -72,7 +72,7 @@ Expression* ASTFactory::NewArgumentList(SourceLocation &loc, ExpressionList* arg
     return new ArgumentList(loc, std::move(args));
 }
 
-Expression* ASTFactory::NewCallExpression(SourceLocation &loc, 
+Expression* ASTFactory::NewCallExpression(SourceLocation &loc,
     MemberAccessKind kind, Expression *func, Expression *args)
 {
     return new CallExpression(loc, kind, func, args);

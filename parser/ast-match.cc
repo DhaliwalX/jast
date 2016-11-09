@@ -27,7 +27,7 @@ bool MatchArrayLiteral(ArrayLiteral *a, ArrayLiteral *b)
         if (a_exprs.size() != b_exprs.size())
             return false;
 
-		for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
+        for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
             if (!FastASTMatcher::match(a_exprs[i].get(), b_exprs[i].get()))
                 return false;
         }
@@ -43,7 +43,7 @@ bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
     if (a_object.size() != b_object.size())
         return false;
 
-	auto it = b_object.begin();
+    auto it = b_object.begin();
     for (auto &p : a_object) {
         if ((it = b_object.find(p.first)) != b_object.end()) {
             if (!FastASTMatcher::match(it->second.get(), p.second.get()))
@@ -284,72 +284,89 @@ bool FastASTMatcher::match(Expression *a, Expression *b)
         return a->AsStringLiteral()->string() == b->AsStringLiteral()->string();
 
     case ASTNodeType::kArrayLiteral:
-        return MatchArrayLiteral(a->AsArrayLiteral(), b->AsArrayLiteral());
+      return MatchArrayLiteral(a->AsArrayLiteral(), b->AsArrayLiteral());
     case ASTNodeType::kObjectLiteral:
-        return MatchObjectLiteral(a->AsObjectLiteral(), b->AsObjectLiteral());
+      return MatchObjectLiteral(a->AsObjectLiteral(), b->AsObjectLiteral());
     case ASTNodeType::kIdentifier:
-        return MatchIdentifier(a->AsIdentifier(), b->AsIdentifier());
+      return MatchIdentifier(a->AsIdentifier(), b->AsIdentifier());
     case ASTNodeType::kBooleanLiteral:
-        return MatchBooleanLiteral(a->AsBooleanLiteral(), b->AsBooleanLiteral());
+      return MatchBooleanLiteral(a->AsBooleanLiteral(), b->AsBooleanLiteral());
     case ASTNodeType::kRegExpLiteral:
-        return MatchRegExpLiteral(a->AsRegExpLiteral(), b->AsRegExpLiteral());
+      return MatchRegExpLiteral(a->AsRegExpLiteral(), b->AsRegExpLiteral());
     case ASTNodeType::kArgumentList:
-        return MatchArgumentList(a->AsArgumentList(), b->AsArgumentList());
+      return MatchArgumentList(a->AsArgumentList(), b->AsArgumentList());
     case ASTNodeType::kCallExpression:
-        return MatchCallExpression(a->AsCallExpression(), b->AsCallExpression());
+      return MatchCallExpression(a->AsCallExpression(), b->AsCallExpression());
     case ASTNodeType::kMemberExpression:
-        return MatchMemberExpression(a->AsMemberExpression(), b->AsMemberExpression());
+      return MatchMemberExpression(a->AsMemberExpression(),
+                                   b->AsMemberExpression());
     case ASTNodeType::kNewExpression:
-        return MatchNewExpression(a->AsNewExpression(), b->AsNewExpression());
+      return MatchNewExpression(a->AsNewExpression(), b->AsNewExpression());
     case ASTNodeType::kPrefixExpression:
-        return MatchPrefixExpression(a->AsPrefixExpression(), b->AsPrefixExpression());
+      return MatchPrefixExpression(a->AsPrefixExpression(),
+                                   b->AsPrefixExpression());
     case ASTNodeType::kPostfixExpression:
-        return MatchPostfixExpression(a->AsPostfixExpression(), b->AsPostfixExpression());
+      return MatchPostfixExpression(a->AsPostfixExpression(),
+                                    b->AsPostfixExpression());
     case ASTNodeType::kBinaryExpression:
-        return MatchBinaryExpression(a->AsBinaryExpression(), b->AsBinaryExpression());
+      return MatchBinaryExpression(a->AsBinaryExpression(),
+                                   b->AsBinaryExpression());
     case ASTNodeType::kAssignExpression:
-        return MatchAssignExpression(a->AsAssignExpression(), b->AsAssignExpression());
+      return MatchAssignExpression(a->AsAssignExpression(),
+                                   b->AsAssignExpression());
     case ASTNodeType::kTernaryExpression:
-        return MatchTernaryExpression(a->AsTernaryExpression(), b->AsTernaryExpression());
+      return MatchTernaryExpression(a->AsTernaryExpression(),
+                                    b->AsTernaryExpression());
     case ASTNodeType::kCommaExpression:
-        return MatchCommaExpression(a->AsCommaExpression(), b->AsCommaExpression());
+      return MatchCommaExpression(a->AsCommaExpression(),
+                                  b->AsCommaExpression());
     case ASTNodeType::kDeclaration:
-        return MatchDeclaration(a->AsDeclaration(), b->AsDeclaration());
+      return MatchDeclaration(a->AsDeclaration(), b->AsDeclaration());
     case ASTNodeType::kDeclarationList:
-        return MatchDeclarationList(a->AsDeclarationList(), b->AsDeclarationList());
+      return MatchDeclarationList(a->AsDeclarationList(),
+                                  b->AsDeclarationList());
     case ASTNodeType::kIfStatement:
-        return MatchIfStatement(a->AsIfStatement(), b->AsIfStatement());
+      return MatchIfStatement(a->AsIfStatement(), b->AsIfStatement());
     case ASTNodeType::kIfElseStatement:
-        return MatchIfElseStatement(a->AsIfElseStatement(), b->AsIfElseStatement());
+      return MatchIfElseStatement(a->AsIfElseStatement(),
+                                  b->AsIfElseStatement());
     case ASTNodeType::kForStatement:
-        return MatchForStatement(a->AsForStatement(), b->AsForStatement());
+      return MatchForStatement(a->AsForStatement(), b->AsForStatement());
     case ASTNodeType::kWhileStatement:
-        return MatchWhileStatement(a->AsWhileStatement(), b->AsWhileStatement());
+      return MatchWhileStatement(a->AsWhileStatement(), b->AsWhileStatement());
     case ASTNodeType::kDoWhileStatement:
-        return MatchDoWhileStatement(a->AsDoWhileStatement(), b->AsDoWhileStatement());
+      return MatchDoWhileStatement(a->AsDoWhileStatement(),
+                                   b->AsDoWhileStatement());
     case ASTNodeType::kLabelledStatement:
-        return MatchLabelledStatement(a->AsLabelledStatement(), b->AsLabelledStatement());
+      return MatchLabelledStatement(a->AsLabelledStatement(),
+                                    b->AsLabelledStatement());
     case ASTNodeType::kBreakStatement:
-        return MatchBreakStatement(a->AsBreakStatement(), b->AsBreakStatement());
+      return MatchBreakStatement(a->AsBreakStatement(), b->AsBreakStatement());
     case ASTNodeType::kContinueStatement:
-        return MatchContinueStatement(a->AsContinueStatement(), b->AsContinueStatement());
+      return MatchContinueStatement(a->AsContinueStatement(),
+                                    b->AsContinueStatement());
     case ASTNodeType::kSwitchStatement:
-        return MatchSwitchStatement(a->AsSwitchStatement(), b->AsSwitchStatement());
+      return MatchSwitchStatement(a->AsSwitchStatement(),
+                                  b->AsSwitchStatement());
     case ASTNodeType::kCaseClauseStatement:
-        return MatchCaseClauseStatement(a->AsCaseClauseStatement(), b->AsCaseClauseStatement());
+      return MatchCaseClauseStatement(a->AsCaseClauseStatement(),
+                                      b->AsCaseClauseStatement());
     case ASTNodeType::kTryCatchStatement:
-        return MatchTryStatement(a->AsTryCatchStatement(), b->AsTryCatchStatement());
+      return MatchTryStatement(a->AsTryCatchStatement(),
+                               b->AsTryCatchStatement());
     case ASTNodeType::kThrowStatement:
-        return MatchThrowStatement(a->AsThrowStatement(), b->AsThrowStatement());
+      return MatchThrowStatement(a->AsThrowStatement(), b->AsThrowStatement());
     case ASTNodeType::kBlockStatement:
-        return MatchBlockStatement(a->AsBlockStatement(), b->AsBlockStatement());
+      return MatchBlockStatement(a->AsBlockStatement(), b->AsBlockStatement());
     case ASTNodeType::kFunctionPrototype:
-        return MatchFunctionPrototype(a->AsFunctionPrototype(), b->AsFunctionPrototype());
+      return MatchFunctionPrototype(a->AsFunctionPrototype(),
+                                    b->AsFunctionPrototype());
     case ASTNodeType::kFunctionStatement:
-        return MatchFunctionStatement(a->AsFunctionStatement(), b->AsFunctionStatement());
+      return MatchFunctionStatement(a->AsFunctionStatement(),
+                                    b->AsFunctionStatement());
     case ASTNodeType::kReturnStatement:
-        return FastASTMatcher::match(a->AsReturnStatement()->expr(),
-            b->AsReturnStatement()->expr());
+      return FastASTMatcher::match(a->AsReturnStatement()->expr(),
+                                   b->AsReturnStatement()->expr());
     default:
         throw std::runtime_error("fatal: unknown type");
     }

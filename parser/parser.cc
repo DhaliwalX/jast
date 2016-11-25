@@ -1039,6 +1039,11 @@ Expression* Parser::ParseProgram()
     return builder()->NewBlockStatement(exprs);
 }
 
+Expression *Parser::ParsePostfixExpression() {
+
+    return nullptr;
+}
+
 Expression *ParseProgram(Parser *parser, String &program)
 {
     // create a scanner

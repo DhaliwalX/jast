@@ -315,10 +315,12 @@ void PrettyPrinter::Visit(BlockStatement *stmt)
     auto list = stmt->statements();
 
     os() << " {\n";
+    tab()++;
     for (auto &expr : *list) {
         expr->Accept(this);
         os() << ";\n";
     }
+    tab()--;
     os() << " }\n";
 }
 

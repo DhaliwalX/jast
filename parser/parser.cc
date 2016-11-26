@@ -879,7 +879,7 @@ Expression* Parser::ParseSwitchStatement()
 Expression* Parser::ParseBreakStatement()
 {
     advance();
-    Expression *label;
+    Expression *label = nullptr;
 
     if (peek() == IDENTIFIER) {
         label = builder()->NewIdentifier(GetIdentifierName());
@@ -892,7 +892,7 @@ Expression* Parser::ParseContinueStatement()
 {
 
     advance();
-    Expression *label;
+    Expression *label = nullptr;
 
     if (peek() == IDENTIFIER) {
         label = builder()->NewIdentifier(GetIdentifierName());

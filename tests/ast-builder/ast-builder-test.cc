@@ -132,4 +132,5 @@ bool AstBuilderTest::run() {
     return true;
 }
 
+RegisterTest X(new AstBuilderTest());
 }

@@ -2,6 +2,7 @@
 #define TEST_H_
 
 #include "parser/context.h"
+#include <vector>
 
 namespace test {
 
@@ -24,6 +25,36 @@ public:
     virtual void destroy() = 0;
 private:
     grok::parser::ParserContext *context_;
+};
+
+class TestDatabase {
+    std::vector<Test*> tests_;
+
+public:
+    void addTest(Test *test) {
+        tests_.push_back(test);
+    }
+
+    std::vector<Test*>& getAll() {
+        return tests_;
+    }
+
+    ~TestDatabase() {
+        for (auto &test : tests_) {
+            delete test;
+        }
+    }
+};
+
+class RegisterTest {
+    static TestDatabase testDb_;
+public:
+    // constructor is enough for everything
+    RegisterTest(Test *test);
+
+    static TestDatabase &getDatabase() {
+        return testDb_;
+    }
 };
 
 }

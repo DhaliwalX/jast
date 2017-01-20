@@ -16,7 +16,7 @@ BNUM    "0b"[01]+
 EXPONENT_DNUM   (({LNUM}|{DNUM})[eE][+-]?{LNUM})
 HNUM    "0x"[0-9a-fA-F]+
 IDENT   [a-zA-Z_$][a-zA-Z_$0-9]*
-STR     (["].*["])|(['].*['])
+
 %%
 <COMMENT1>.+    ;
 <COMMENT1>\n    BEGIN 0;
@@ -118,7 +118,7 @@ STR     (["].*["])|(['].*['])
 <<EOF>>     { return EOS; }
 {LNUM}|{DNUM}|{BNUM}|{EXPONENT_DNUM}|{HNUM}   { return NUMBER; }
 {IDENT}     { return IDENTIFIER; }
-{STR}       { return STRING; }
+\"([^\\\"]|\\.)*\"|\'([^\\\']|\\.)*\' { return STRING; } /*Taken from here: http://stackoverflow.com/a/9260547/287933*/
 [\n]        { yylineno++; }
 <*>(.)         { return ILLEGAL; }
 %%

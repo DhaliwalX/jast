@@ -77,6 +77,7 @@ IDENT   [a-zA-Z_$][a-zA-Z_$0-9]*
 "instanceof"    { return INSTANCEOF; }
 "in"        { return IN; }
 "~"         { return BIT_NOT; }
+"!"         { return NOT; }
 "delete"    { return DELETE; }
 "typeof"    { return TYPEOF; }
 "void"      { return VOID; }

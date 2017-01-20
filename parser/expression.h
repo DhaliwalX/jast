@@ -420,6 +420,7 @@ enum class BinaryOperation {
     kMod,
     kShiftRight,
     kShiftLeft,
+    kShiftZeroRight,
     kLessThan,
     kGreaterThan,
     kLessThanEqual,

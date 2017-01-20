@@ -412,8 +412,9 @@ BinaryOperation MapBinaryOperator(TokenType tok)
         case MUL:           return BinaryOperation::kMultiplication;
         case DIV:           return BinaryOperation::kDivision;
         case MOD:           return BinaryOperation::kMod;
-        case SHR:           return BinaryOperation::kShiftRight;
-        case SAR:           return BinaryOperation::kShiftLeft;
+        case SHL:           return BinaryOperation::kShiftLeft;
+        case SAR:           return BinaryOperation::kShiftRight;
+        case SHR:           return BinaryOperation::kShiftZeroRight;
         case LT:           return BinaryOperation::kLessThan;
         case GT:           return BinaryOperation::kGreaterThan;
         case LTE:           return BinaryOperation::kLessThanEqual;
@@ -1059,3 +1060,4 @@ Expression *ParseProgram(Parser *parser, String &program)
 
 }
 }
+

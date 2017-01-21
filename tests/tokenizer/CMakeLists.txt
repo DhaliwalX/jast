@@ -1,0 +1,5 @@
+set(TEST_SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner-test.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer-test.cc
+    ${TEST_SOURCE_FILES}
+    PARENT_SCOPE)

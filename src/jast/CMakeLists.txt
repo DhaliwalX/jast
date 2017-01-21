@@ -1,0 +1,15 @@
+set(JAST_SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ast-builder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/ast-match.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/astfactory.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/expression.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/source-locator.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/statement.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/string-builder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/token.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.cc
+    ${JAST_SOURCE_FILES}
+    PARENT_SCOPE
+)

@@ -1,0 +1,22 @@
+set(JAST_HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/ast-builder.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/ast-match.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/astfactory.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/astvisitor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/common.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/context.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/expression.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source-locator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/statement.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/string-builder.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/string-view.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/token.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tokens.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/tokens.inc
+    ${JAST_HEADER_FILES}
+    PARENT_SCOPE
+)

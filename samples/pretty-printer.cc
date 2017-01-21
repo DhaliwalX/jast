@@ -2,7 +2,7 @@
 
 namespace printer {
 
-using namespace grok::parser;
+using namespace jast;
 
 void PrettyPrinter::Visit(NullLiteral *literal)
 {
@@ -26,7 +26,7 @@ void PrettyPrinter::Visit(IntegralLiteral *literal)
 
 void PrettyPrinter::Visit(StringLiteral *literal)
 {
-    os() << literal->string();
+    os() << "'" << literal->string() << "'";
 }
 
 void PrettyPrinter::Visit(ArrayLiteral *literal)

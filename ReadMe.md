@@ -8,7 +8,7 @@ find. This project is still under development and can take lot of time to reach 
 There may be bugs, memory leaks etc. So beware before using it.
 
 ### Grammar
-jast uses Recursive Descent parser to parse JavaScript. It can parse ECMA-262 5.1 grammar.
+jast uses Recursive Descent parser to parse JavaScript. It can parse a subset ECMA-262 5.1 grammar.
 
 ### Requirements
  + CMake

@@ -16,6 +16,7 @@ protected:
     std::ostream &os() { return os_; }
     int &tab() { return tab_; }
     bool tabs_or_spaces() { return tab_or_spaces_; }
+    std::ostream &os_tabbed() { return os_ << std::string(tab(), ' '); }
 
 public:
 #define DECLARE_VISITOR_METHOD(type) void Visit(jast::type *) override;

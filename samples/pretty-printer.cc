@@ -29,6 +29,11 @@ void PrettyPrinter::Visit(StringLiteral *literal)
     os() << "'" << literal->string() << "'";
 }
 
+void PrettyPrinter::Visit(TemplateLiteral *literal)
+{
+    os() << "`" << literal->template_string() << "`";
+}
+
 void PrettyPrinter::Visit(ArrayLiteral *literal)
 {
     ProxyArray &arr = literal->exprs();
@@ -207,6 +212,9 @@ void PrettyPrinter::Visit(BinaryExpression *expr)
     case BinaryOperation::kShiftRight:
         os() << ">>";
         break;
+    case BinaryOperation::kShiftZeroRight:
+        os() << ">>>";
+        break;
     case BinaryOperation::kShiftLeft:
         os() << "<<";
         break;
@@ -314,14 +322,15 @@ void PrettyPrinter::Visit(BlockStatement *stmt)
 {
     auto list = stmt->statements();
 
-    os() << " {\n";
+    os() << "{\n";
     tab()++;
     for (auto &expr : *list) {
+        os_tabbed();
         expr->Accept(this);
         os() << ";\n";
     }
     tab()--;
-    os() << " }\n";
+    os() << "}\n";
 }
 
 void PrettyPrinter::Visit(ForStatement *stmt)
@@ -487,11 +496,16 @@ void PrettyPrinter::Visit(IfStatement *stmt)
 
 void PrettyPrinter::Visit(IfElseStatement *stmt)
 {
-    os() << "if (";
+    os_tabbed() << "if (";
+    auto tabs = tab();
+    tab() = 0;
     stmt->condition()->Accept(this);
     os() << ")";
+    tab() = tabs;
     stmt->body()->Accept(this);
+    tab() = 0;
     os() << " else ";
+    tab() = tabs;
     stmt->els()->Accept(this);
 }
 

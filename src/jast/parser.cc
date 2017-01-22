@@ -131,6 +131,8 @@ Expression* Parser::ParsePrimary()
     } else if (tok == NUMBER) {
         result = builder()->NewIntegralLiteral(
                                         ParseNumber(lex()->currentToken()));
+    } else if (tok == TEMPLATE) {
+        result = builder()->NewTemplateLiteral(lex()->currentToken().view());
     } else if (tok == STRING) {
         result = builder()->NewStringLiteral(lex()->currentToken().view());
     } else if (tok == IDENTIFIER) {

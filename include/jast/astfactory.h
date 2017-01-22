@@ -26,6 +26,8 @@ public:
 
     virtual Expression* NewStringLiteral(Position &loc, std::string str);
 
+    virtual Expression* NewTemplateLiteral(Position &loc, std::string str);
+
     virtual Expression* NewArrayLiteral(Position &loc, ProxyArray arr);
 
     virtual Expression* NewObjectLiteral(Position &loc, ProxyObject obj);

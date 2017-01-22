@@ -36,6 +36,8 @@ public:
     // create a new node representing JavaScript string
     Expression *NewStringLiteral(const std::string &str);
 
+    Expression *NewTemplateLiteral(const std::string &str);
+
     // create a new node representing JavaScript array
     // after passing `arr` to this function, your arr becomes unusable 
     Expression *NewArrayLiteral(ProxyArray arr);

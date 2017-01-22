@@ -45,6 +45,12 @@ Expression* ASTFactory::NewStringLiteral(Position &loc,
     return new StringLiteral(loc, str);
 }
 
+Expression* ASTFactory::NewTemplateLiteral(Position &loc,
+    std::string str)
+{
+    return new TemplateLiteral(loc, str);
+}
+
 Expression* ASTFactory::NewArrayLiteral(Position &loc, ProxyArray arr)
 {
     return new ArrayLiteral(loc, std::move(arr));

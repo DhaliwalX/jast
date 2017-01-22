@@ -26,6 +26,7 @@ namespace jast {
     M(ThisHolder)           \
     M(IntegralLiteral)      \
     M(StringLiteral)        \
+    M(TemplateLiteral)      \
     M(ArrayLiteral)         \
     M(ObjectLiteral)        \
     M(Identifier)           \
@@ -192,6 +193,19 @@ public:
 
     std::string &string() { return str_; }
     DEFINE_NODE_TYPE(StringLiteral);
+};
+
+class TemplateLiteral : public Expression {
+private:
+    std::string template_string_;
+
+public:
+    TemplateLiteral(Position &loc, const std::string &template_string)
+        : Expression(loc), template_string_{ template_string }
+    { }
+
+    std::string &template_string() { return template_string_; }
+    DEFINE_NODE_TYPE(TemplateLiteral);
 };
 
 class ArrayLiteral : public Expression {

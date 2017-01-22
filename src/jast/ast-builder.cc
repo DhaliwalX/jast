@@ -32,6 +32,11 @@ Expression *ASTBuilder::NewStringLiteral(const std::string &str)
     return factory()->NewStringLiteral(locator()->loc(), str);
 }
 
+Expression *ASTBuilder::NewTemplateLiteral(const std::string &str)
+{
+    return factory()->NewTemplateLiteral(locator()->loc(), str);
+}
+
 Expression *ASTBuilder::NewArrayLiteral(ProxyArray arr)
 {
     return factory()->NewArrayLiteral(locator()->loc(), std::move(arr));

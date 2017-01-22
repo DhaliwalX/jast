@@ -421,10 +421,8 @@ Token Tokenizer::advance_internal() {
         return Token(view, type, position, seek);
     }
 
-    if (ch == '"') {
-        return parseString(false);
-    } else if (ch == '\'') {
-        return parseString(true);
+    if (ch == '"' || ch == '\'' || ch == '`') {
+        return parseString(ch);
     }
 
     if (isdigit(ch)) {
@@ -436,9 +434,8 @@ Token Tokenizer::advance_internal() {
     return Token(std::string("ILLEGAL"), TokenType::INVALID, position, seek);
 }
 
-Token Tokenizer::parseString(bool single_quote) {
+Token Tokenizer::parseString(char delim) {
     std::string buffer;
-    char delim = single_quote ? '\'' : '"';
 
     auto seek = _ seek();
     auto position = _ position();
@@ -452,7 +449,9 @@ Token Tokenizer::parseString(bool single_quote) {
         return Token(std::string("EOF"), TokenType::ERROR, position, seek);
     }
 
-    return Token(buffer, TokenType::STRING, position, seek);
+    TokenType type = delim == '`' ? TokenType::TEMPLATE : TokenType::STRING;
+
+    return Token(buffer, type, position, seek);
 }
 
 Token Tokenizer::parseNumber(char start) {

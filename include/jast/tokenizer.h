@@ -25,7 +25,7 @@ public:
 
 private:
     Token advance_internal();
-    Token parseString(bool single_quote);
+    Token parseString(char delim);
     Token parseNumber(char start);
 
     TokenizerState *state_;

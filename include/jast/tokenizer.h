@@ -14,12 +14,12 @@ class TokenizerState;
  */
 class Tokenizer {
 public:
-    Tokenizer(Scanner *scanner);
+    Tokenizer(BasicScanner *scanner);
     TokenType peek();
 
     void advance();
 
-    void reset(Scanner *scanner);
+    void reset(BasicScanner *scanner);
 
     Token &currentToken();
 

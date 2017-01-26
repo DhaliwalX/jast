@@ -204,4 +204,18 @@ TEST_F(TokenizerTest, ComplexTest8) {
     CHECK(SEMICOLON);
 }
 
+TEST_F(TokenizerTest, ComplexTest9) {
+    INIT("++a*2;");
+
+    CHECK(INC);
+    CHECK(IDENTIFIER);
+    CHECK(MUL);
+    CHECK(NUMBER);
+    CHECK(SEMICOLON);
+}
+
+TEST_F(TokenizerTest, ComplexTest10) {
+
+}
+
 }

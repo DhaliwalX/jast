@@ -371,20 +371,20 @@ Expression* Parser::ParseUnaryExpression()
         advance();
         // convert + (Expr) to Expr * 1
         return builder()->NewBinaryExpression(BinaryOperation::kMultiplication,
-            ParseExpression(), builder()->NewIntegralLiteral(1.0));
+            ParseUnaryExpression(), builder()->NewIntegralLiteral(1.0));
     } else if (tok == SUB) {
         advance();
 
         // similarly for `-Expr` to `Expr * -1` 
         return builder()->NewBinaryExpression(BinaryOperation::kMultiplication,
-            ParseExpression(), builder()->NewIntegralLiteral(-1.0));
+            ParseUnaryExpression(), builder()->NewIntegralLiteral(-1.0));
     } else if (tok == INC || tok == DEC || tok == NOT || tok == BIT_NOT
         || tok == TYPEOF || tok == DELETE || tok == VOID) {
+        auto token = lex()->currentToken();
         lex()->advance();
 
-        return builder()->NewPrefixExpression(
-                        MapTokenWithPrefixOperator(lex()->currentToken()),
-                        ParseLeftHandSideExpression());
+        return builder()->NewPrefixExpression(MapTokenWithPrefixOperator(token),
+                                              ParseUnaryExpression());
     }
 
     // PostfixExpression :

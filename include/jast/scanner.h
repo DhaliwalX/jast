@@ -7,15 +7,26 @@
 
 namespace jast {
 
-// simple scanner class
-template <class StreamType, class BufferType>
 class BasicScanner {
 public:
-    BasicScanner(StreamType &is) : is_(is), buffer_(0) { }
     virtual ~BasicScanner() = default;
 
+    virtual void putback(char ch) = 0;
+
+    virtual int read(std::string &str, int num) = 0;
+
+    virtual char readchar() = 0;
+};
+
+// simple scanner class
+template <class StreamType, class BufferType>
+class BufferedScanner : public BasicScanner {
+public:
+    BufferedScanner(StreamType &is) : is_(is), buffer_(0) { }
+    ~BufferedScanner() = default;
+
     // read a character from stream
-    virtual int read(std::string &str, int num)  {
+    int read(std::string &str, int num) override  {
         str.resize(num, '\0');
 
         if (is_.eof())
@@ -25,11 +36,11 @@ public:
         return -1;
     }
 
-    virtual void putback(char ch) {
+    void putback(char ch) override {
         buffer_.push_back(ch);
     }
 
-    virtual char readchar() {
+    char readchar() override {
         if (!buffer_.empty()) {
             char ch = buffer_.back();
             buffer_.pop_back();
@@ -46,7 +57,7 @@ private:
     BufferType buffer_;
 };
 
-using Scanner = BasicScanner<std::istream, std::vector<char>>;
+using Scanner = BufferedScanner<std::istream, std::vector<char>>;
 
 } // jast
 

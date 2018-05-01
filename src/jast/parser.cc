@@ -526,17 +526,17 @@ Expression* Parser::ParseCommaExpression()
         return one;
 
     ExpressionList *exprs = builder()->NewExpressionList();
+    exprs->Insert(one);
 
     // loop until we don't find a ','
     while (true) {
-        exprs->Insert(one);
-
         advance();
         one = ParseAssignExpression();
+        exprs->Insert(one);
 
         tok = peek();
         if (tok != COMMA)
-            break;   
+            break;
     }
 
     return builder()->NewCommaExpression(exprs);

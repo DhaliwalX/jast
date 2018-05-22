@@ -1,11 +1,12 @@
 #include "jast/parser-builder.h"
-#include "pretty-printer.h"
+#include "codegen/codegen.h"
 
 #include <iostream>
 #include <sstream>
 int main()
 {
     using namespace jast;
+    CodeGenerator::Initialize();
 
     ParserBuilder builder(std::cin, "STDIN");
     Parser *parser = builder.parser();
@@ -19,8 +20,8 @@ int main()
     }
     std::cout << "Parsed correctly" << std::endl;
 
-    printer::PrettyPrinter p(std::cout, 1);
-    ast->Accept(&p);
+    CodeGenerator codegen;
+    ast->Accept(&codegen);
 
     delete ast;
     return 0;

@@ -7,9 +7,9 @@
 
 namespace jast {
 
-class BasicScanner {
+class CharacterStream {
 public:
-    virtual ~BasicScanner() = default;
+    virtual ~CharacterStream() = default;
 
     virtual void putback(char ch) = 0;
 
@@ -20,10 +20,10 @@ public:
 
 // simple scanner class
 template <class StreamType, class BufferType>
-class BufferedScanner : public BasicScanner {
+class BufferedCharacterStream : public CharacterStream {
 public:
-    BufferedScanner(StreamType &is) : is_(is), buffer_(0) { }
-    ~BufferedScanner() = default;
+    BufferedCharacterStream(StreamType &is) : is_(is), buffer_(0) { }
+    ~BufferedCharacterStream() = default;
 
     // read a character from stream
     int read(std::string &str, int num) override  {
@@ -57,7 +57,8 @@ private:
     BufferType buffer_;
 };
 
-using Scanner = BufferedScanner<std::istream, std::vector<char>>;
+using Scanner = BufferedCharacterStream<std::istream, std::vector<char>>;
+using StandardCharacterStream = Scanner;
 
 } // jast
 

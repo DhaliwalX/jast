@@ -23,14 +23,14 @@ public:
     using seek_type = size_t;
     using char_type = char;
 
-    TokenizerState(BasicScanner *scanner)
+    TokenizerState(CharacterStream *scanner)
     : seek_{ 0 }, scanner_{ scanner }
     { }
 
     TokenizerState(const TokenizerState &state) = default;
     TokenizerState(TokenizerState &&state) = default;
 
-    inline void reset(BasicScanner *scanner) {
+    inline void reset(CharacterStream *scanner) {
         scanner_ = scanner;
         seek_ = 0;
         last_col_length_ = 0;
@@ -111,7 +111,7 @@ private:
 
     Position position_;
     size_t last_col_length_;
-    BasicScanner *scanner_;
+    CharacterStream *scanner_;
 };
 
 std::unordered_map<std::string, TokenType> TokenizerState::keywords = {
@@ -276,14 +276,14 @@ bool IsSpace(char ch) {
 // Tokenizer implementation
 // --------------------------
 
-Tokenizer::Tokenizer(BasicScanner *scanner)
-    : state_{ new TokenizerState(scanner) }
+Tokenizer::Tokenizer(CharacterStream *stream)
+    : state_{ new TokenizerState(stream) }
 { }
 
 #define _ state_->
 
-void Tokenizer::reset(BasicScanner *scanner) {
-    state_->reset(scanner);
+void Tokenizer::reset(CharacterStream *stream) {
+    state_->reset(stream);
 }
 
 void Tokenizer::advance() {

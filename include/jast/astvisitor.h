@@ -17,11 +17,10 @@ AST_NODE_LIST(DECLARE_VISITOR_METHOD)
 #undef DECLARE_VISITOR_METHOD
 };
 
-
 // Lesser strict version of above visitor
 class ASTVisitor : public BasicASTVisitor {
 public:
-#define DECLARE_VISITOR_METHOD(type) void Visit(type *) override {}
+#define DECLARE_VISITOR_METHOD(type) void Visit(type *) override { throw std::runtime_error("Not implemented walker for " #type); }
 AST_NODE_LIST(DECLARE_VISITOR_METHOD)
 #undef DECLARE_VISITOR_METHOD
 };

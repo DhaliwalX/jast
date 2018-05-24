@@ -448,7 +448,8 @@ enum class BinaryOperation {
     kBitAnd,
     kBitOr,
     kBitXor,
-    kInstanceOf
+    kInstanceOf,
+    kIn
 };
 
 class BinaryExpression : public Expression {

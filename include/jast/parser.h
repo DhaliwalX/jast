@@ -79,6 +79,8 @@ public:
 
     Expression *ParseProgram();
 
+    Expression *ParseForInStatement(Expression *inexpr);
+
 private:
     String GetStringLiteral();
     String GetIdentifierName();

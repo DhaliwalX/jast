@@ -261,15 +261,33 @@ public:
     DEFINE_NODE_TYPE(BooleanLiteral);
 };
 
+enum class RegExpFlags : uint {
+    kGlobal,
+    kUnicode,
+    kIgnoreCase,
+    kMultiline,
+    kSticky
+};
+
 class RegExpLiteral : public Expression {
 public:
-    RegExpLiteral(Position &loc)
-        : Expression(loc)
+    RegExpLiteral(Position &loc, const std::string &regex,
+            const std::vector<RegExpFlags> &flags)
+        : Expression(loc), regex_{regex}, flags_{ flags }
     { }
 
     DEFINE_NODE_TYPE(RegExpLiteral);
 
-    // TODO
+    std::string &regex() {
+        return regex_;
+    }
+
+    std::vector<RegExpFlags> &flags() {
+        return flags_;
+    }
+private:
+    std::string regex_;
+    std::vector<RegExpFlags> flags_;
 };
 
 class ArgumentList : public Expression {

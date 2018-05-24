@@ -45,6 +45,12 @@ Expression* ASTFactory::NewStringLiteral(Position &loc,
     return new StringLiteral(loc, str);
 }
 
+Expression* ASTFactory::NewRegExpLiteral(Position &loc,
+    std::string str, const std::vector<RegExpFlags> &flags)
+{
+    return new RegExpLiteral(loc, str, flags);
+}
+
 Expression* ASTFactory::NewTemplateLiteral(Position &loc,
     std::string str)
 {

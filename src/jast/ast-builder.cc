@@ -32,6 +32,11 @@ Expression *ASTBuilder::NewStringLiteral(const std::string &str)
     return factory()->NewStringLiteral(locator()->loc(), str);
 }
 
+Expression *ASTBuilder::NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags)
+{
+    return factory()->NewRegExpLiteral(locator()->loc(), str, flags);
+}
+
 Expression *ASTBuilder::NewTemplateLiteral(const std::string &str)
 {
     return factory()->NewTemplateLiteral(locator()->loc(), str);

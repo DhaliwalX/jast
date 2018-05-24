@@ -27,6 +27,7 @@ private:
     Token advance_internal();
     Token parseString(char delim);
     Token parseNumber(char start);
+    Token parseRegex(bool *ok);
 
     TokenizerState *state_;
 };

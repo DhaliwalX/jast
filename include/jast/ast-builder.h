@@ -4,6 +4,7 @@
 #include "jast/astfactory.h"
 #include "jast/source-locator.h"
 #include "jast/context.h"
+#include "jast/expression.h"
 
 namespace jast {
 
@@ -37,6 +38,8 @@ public:
     Expression *NewStringLiteral(const std::string &str);
 
     Expression *NewTemplateLiteral(const std::string &str);
+
+    Expression *NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags);
 
     // create a new node representing JavaScript array
     // after passing `arr` to this function, your arr becomes unusable 

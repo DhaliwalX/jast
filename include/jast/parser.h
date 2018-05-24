@@ -81,13 +81,15 @@ public:
 
     Expression *ParseForInStatement(Expression *inexpr);
 
+    Expression *ParseVariableOrExpressionOptional();
+
 private:
     String GetStringLiteral();
     String GetIdentifierName();
     double ParseNumber(const Token &token);
 
     TokenType peek();
-    void advance();
+    void advance(bool not_regex = false);
 
     ASTBuilder* builder() { return builder_; }
     Tokenizer* lex() { return lex_; }

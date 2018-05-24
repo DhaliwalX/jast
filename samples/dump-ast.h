@@ -6,9 +6,9 @@
 
 namespace printer {
 
-class PrettyPrinter : public jast::ASTVisitor {
+class DumpAST : public jast::ASTVisitor {
 public:
-    PrettyPrinter(std::ostream &os, bool tab_or_spaces)
+    DumpAST(std::ostream &os, bool tab_or_spaces)
         : os_{ os }, tab_{ 0 }, tab_or_spaces_{tab_or_spaces}
     { }
 

@@ -48,9 +48,9 @@ TokenType Parser::peek()
     return lex()->peek();
 }
 
-void Parser::advance()
+void Parser::advance(bool not_regex)
 {
-    lex()->advance();
+    lex()->advance(not_regex);
 }
 
 Expression* Parser::ParseArrayLiteral()
@@ -180,7 +180,7 @@ Expression* Parser::ParsePrimary()
         throw SyntaxError(lex()->currentToken(), "expected a primary expression");
     }
 
-    advance();
+    advance(true);
     return result;
 }
 
@@ -631,7 +631,7 @@ Expression* Parser::ParseForStatement()
     EXPECT(LPAREN);
 
     // parse 'for ( >>this<< ;...' part
-    auto init = ParseExpressionOptional();
+    auto init = ParseVariableOrExpressionOptional();
 
     if (init && init->IsBinaryExpression()) {
         auto op = init->AsBinaryExpression()->op();
@@ -819,7 +819,7 @@ Expression* Parser::ParseReturnStatement()
         return builder()->NewReturnStatement(nullptr);
     }
 
-    auto expr = ParseAssignExpression();
+    auto expr = ParseCommaExpression();
     tok = peek();
 
     if (tok != SEMICOLON)
@@ -849,6 +849,15 @@ Declaration* Parser::ParseDeclaration()
             builder()->locator()->loc(), name, ParseAssignExpression());
 }
 
+Expression* Parser::ParseVariableOrExpressionOptional() {
+    auto tok = peek();
+    if (tok == VAR || tok == LET || tok == CONST) {
+        return ParseVariableStatement();
+    }
+
+    return ParseExpressionOptional();
+}
+
 Expression* Parser::ParseVariableStatement()
 {
     advance();    // eat 'var'
@@ -865,7 +874,6 @@ Expression* Parser::ParseVariableStatement()
         advance(); // eat ','
     }
 
-    advance(); // eat ';'
     return builder()->factory()->NewDeclarationList(
             builder()->locator()->loc(), std::move(decl_list));
 }
@@ -877,9 +885,15 @@ Expression *Parser::ParseCaseBlock()
     // TODO ::= make it more abstract. use ParseExpression
     Expression *clause = ParseAssignExpression();
     EXPECT(COLON);
-    Expression *stmt = ParseStatement();
 
-    return builder()->NewCaseClauseStatement(clause, stmt);
+    ExpressionList *list = builder()->NewExpressionList();
+
+    do {
+        Expression *stmt = ParseStatement();
+        list->Insert(stmt);
+    } while (peek() != CASE && peek() != DEFAULT && peek() != RBRACE);
+
+    return builder()->NewCaseClauseStatement(clause, builder()->NewBlockStatement(list));
 }
 
 Expression *Parser::ParseDefaultClause()
@@ -887,8 +901,14 @@ Expression *Parser::ParseDefaultClause()
     advance();
 
     EXPECT(COLON);
-    Expression *stmt = ParseStatement();
-    return stmt;
+
+    ExpressionList *list = builder()->NewExpressionList();
+    do {
+        Expression *stmt = ParseStatement();
+        list->Insert(stmt);
+    } while (peek() != CASE && peek() != DEFAULT && peek() != RBRACE);
+
+    return builder()->NewBlockStatement(list);
 }
 
 Expression* Parser::ParseSwitchStatement()
@@ -996,6 +1016,11 @@ Expression* Parser::ParseStatement()
         auto result = ParseExpressionOptional();
         tok = peek();
 
+        if (tok == COLON && result->IsIdentifier()) {
+            auto label = builder()->NewLabelledStatement(result->AsIdentifier()->GetName(), result);
+            advance();
+            return label; 
+        }
         if (tok != SEMICOLON)
             throw SyntaxError(lex()->currentToken(), "expected a ';'");
         advance();
@@ -1017,6 +1042,8 @@ Expression* Parser::ParseStatement()
     case DO:
         return ParseDoWhileStatement();
     case VAR:
+    case CONST:
+    case LET:
         return ParseVariableStatement();
     case SWITCH:
         return ParseSwitchStatement();

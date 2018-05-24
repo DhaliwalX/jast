@@ -20,7 +20,7 @@ int main()
     std::cout << "Parsed correctly" << std::endl;
 
     printer::PrettyPrinter p(std::cout, 1);
-    ast->Accept(&p);
+    // ast->Accept(&p);
 
     delete ast;
     return 0;

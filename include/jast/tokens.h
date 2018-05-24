@@ -10,4 +10,14 @@ enum TokenType {
     NUM_TOKENS
 };
 
+static bool IsKeyword(TokenType type) {
+    switch (type) {
+#define K(t, k, p) case t:
+#include "jast/tokens.inc"
+        return true;
+    default:
+        return false;
+    }
+}
+
 #endif

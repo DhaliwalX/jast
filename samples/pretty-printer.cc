@@ -260,6 +260,9 @@ void PrettyPrinter::Visit(BinaryExpression *expr)
     case BinaryOperation::kInstanceOf:
         os() << "instanceof";
         break;
+    case BinaryOperation::kIn:
+        os() << "in";
+        break;
     default: throw std::runtime_error("invalid binary operation");
     }
     os() << " ";

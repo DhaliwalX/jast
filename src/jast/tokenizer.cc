@@ -69,6 +69,7 @@ public:
 
     inline char_type readchar() {
         char ch = scanner_->readchar();
+        std::cout << ch;
         if (ch == '\n') {
             position_.row()++;
 
@@ -483,6 +484,8 @@ Token Tokenizer::parseRegex(bool *ok) {
         buffer.push_back(ch);
         ch = _ readchar();
     }
+
+    _ putback(ch);
 
     if (!flag_present) {
         buffer.push_back('n');

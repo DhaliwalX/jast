@@ -432,6 +432,7 @@ BinaryOperation MapBinaryOperator(Token &tok)
         case BIT_OR:           return BinaryOperation::kBitOr;
         case BIT_XOR:           return BinaryOperation::kBitXor;
         case INSTANCEOF:           return BinaryOperation::kInstanceOf;
+        case IN:            return BinaryOperation::kIn;
         default:       throw SyntaxError(tok,
                                     "unexpected token as binary operator");
     }
@@ -593,7 +594,16 @@ Expression* Parser::ParseIfStatement()
     return result;
 }
 
-// TODO : Add parsing of for in statement
+Expression* Parser::ParseForInStatement(Expression *inexpr)
+{
+    EXPECT(RPAREN);
+
+        // parse 'for (x = 10; x < 100; x = x + 1) >>rest<<...' part
+    auto body = ParseStatement();
+    return builder()->NewForStatement(ForKind::kForIn,
+        inexpr, nullptr, nullptr, body);
+}
+
 Expression* Parser::ParseForStatement()
 {
     // eat 'for'
@@ -603,6 +613,13 @@ Expression* Parser::ParseForStatement()
 
     // parse 'for ( >>this<< ;...' part
     auto init = ParseExpressionOptional();
+
+    if (init && init->IsBinaryExpression()) {
+        auto op = init->AsBinaryExpression()->op();
+        if (op == BinaryOperation::kIn) {
+            return ParseForInStatement(init);
+        }
+    }
     EXPECT(SEMICOLON);
 
     Expression* condition;

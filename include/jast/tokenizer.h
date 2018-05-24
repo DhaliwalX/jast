@@ -17,14 +17,14 @@ public:
     Tokenizer(CharacterStream *stream);
     TokenType peek();
 
-    void advance();
+    void advance(bool divide_expected = false);
 
     void reset(CharacterStream *stream);
 
     Token &currentToken();
 
 private:
-    Token advance_internal();
+    Token advance_internal(bool not_regex);
     Token parseString(char delim);
     Token parseNumber(char start);
     Token parseRegex(bool *ok);

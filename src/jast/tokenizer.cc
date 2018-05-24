@@ -1,6 +1,7 @@
 #include "jast/tokenizer.h"
 #include "jast/token.h"
 #include "jast/scanner.h"
+#include "jast/utils.h"
 
 #include <cstring>
 #include <cassert>
@@ -286,8 +287,8 @@ void Tokenizer::reset(CharacterStream *stream) {
     state_->reset(stream);
 }
 
-void Tokenizer::advance() {
-    _ setToken(advance_internal());
+void Tokenizer::advance(bool divide_expected) {
+    _ setToken(advance_internal(divide_expected));
 }
 
 TokenType Tokenizer::peek() {
@@ -302,7 +303,7 @@ Token &Tokenizer::currentToken() {
 
 // The heart of the lexer
 // -----------------------
-Token Tokenizer::advance_internal() {
+Token Tokenizer::advance_internal(bool not_regex) {
     char ch = _ readchar();
 
     do {
@@ -339,6 +340,9 @@ Token Tokenizer::advance_internal() {
             } else {
                 bool ok = true;
                 _ putback(next);
+
+                // do not parse this as regular expression
+                if (not_regex) break;
                 Token t = parseRegex(&ok);
                 if (!ok) {
                     break;

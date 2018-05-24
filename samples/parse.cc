@@ -1,5 +1,5 @@
 #include "jast/parser-builder.h"
-#include "pretty-printer.h"
+#include "dump-ast.h"
 
 #include <iostream>
 #include <sstream>
@@ -19,8 +19,8 @@ int main()
     }
     std::cout << "Parsed correctly" << std::endl;
 
-    printer::PrettyPrinter p(std::cout, 1);
-    // ast->Accept(&p);
+    printer::DumpAST p(std::cout, 1);
+    ast->Accept(&p);
 
     delete ast;
     return 0;

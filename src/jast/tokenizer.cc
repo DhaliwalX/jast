@@ -69,7 +69,6 @@ public:
 
     inline char_type readchar() {
         char ch = scanner_->readchar();
-        std::cout << ch;
         if (ch == '\n') {
             position_.row()++;
 
@@ -457,6 +456,9 @@ Token Tokenizer::parseRegex(bool *ok) {
     while (ch != '/') {
         if (ch == EOF || ch == '\n') {
             *ok = false;
+            if (ch == '\n') {
+                _ putback('\n');
+            }
             for (int i = buffer.length() - 1; i >= 0; i--) {
                 _ putback(buffer[i]);
             }
@@ -501,6 +503,14 @@ Token Tokenizer::parseString(char delim) {
     auto position = _ position();
     char ch = _ readchar();
     while (ch != EOF && ch != delim) {
+        // escape characters
+        if (ch == '\\') {
+            buffer.push_back(ch);
+            ch = _ readchar();
+            if (ch == EOF) {
+                break;
+            }
+        }
         buffer.push_back(ch);
         ch = _ readchar();
     }

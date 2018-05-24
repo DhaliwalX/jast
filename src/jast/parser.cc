@@ -97,7 +97,7 @@ Expression* Parser::ParseObjectLiteral()
         tok = peek();
         if (tok == STRING) {
             name = GetStringLiteral();
-        } else if (tok == IDENTIFIER) {
+        } else if (tok == IDENTIFIER || IsKeyword(tok) || tok == NUMBER) {
             name = lex()->currentToken().view();
         } else {
             throw SyntaxError(lex()->currentToken(),
@@ -137,7 +137,6 @@ Expression* Parser::ParsePrimary()
         std::string regex = lex()->currentToken().view();
         auto pos = regex.rfind("$");
         auto flags = regex.substr(pos);
-        std::cout << flags << std::endl;
         std::vector<RegExpFlags> fs;
         for (auto &flag : flags) {
             if (flag == 'g') {
@@ -193,7 +192,7 @@ Expression* Parser::ParseDotExpression()
     auto tok = peek();
 
     // this token should be a valid identifier
-    if (tok != IDENTIFIER)
+    if (tok != IDENTIFIER && !IsKeyword(tok))
         throw SyntaxError(lex()->currentToken(), "expected a valid identifier");
     auto name = GetIdentifierName();
 
@@ -799,12 +798,12 @@ Expression* Parser::ParseBlockStatement()
     advance(); // eat '{'
 
     while (true) {
-        auto stmt = ParseStatement();
-        stmts->Insert(stmt);
-
         auto tok = peek();
         if (tok == RBRACE)
             break;
+
+        auto stmt = ParseStatement();
+        stmts->Insert(stmt);
     }
 
     advance(); // eat '}'
@@ -814,8 +813,14 @@ Expression* Parser::ParseBlockStatement()
 Expression* Parser::ParseReturnStatement()
 {
     advance(); // eat 'return'
-    auto expr = ParseAssignExpression();
     auto tok = peek();
+
+    if (tok == SEMICOLON) {
+        return builder()->NewReturnStatement(nullptr);
+    }
+
+    auto expr = ParseAssignExpression();
+    tok = peek();
 
     if (tok != SEMICOLON)
         throw SyntaxError(lex()->currentToken(), "expected a ';'");
@@ -952,26 +957,19 @@ Expression* Parser::ParseTryCatchStatement()
     Expression *catch_block = nullptr;
     Expression *finally = nullptr;
     EXPECT(TRY);
-    EXPECT(LBRACE);
 
-    try_block = ParseStatement();
-
-    EXPECT(RBRACE);
+    try_block = ParseBlockStatement();
     
     if (peek() == CATCH) {
         advance();
         EXPECT(LPAREN);
         catch_expr = ParseExpression();
         EXPECT(RPAREN);
-        EXPECT(LBRACE);
-        catch_block = ParseStatement();
-        EXPECT(RBRACE);
+        catch_block = ParseBlockStatement();
     }
     if (peek() == FINALLY) {
         advance();
-        EXPECT(LBRACE);
-        finally = ParseStatement();
-        EXPECT(RBRACE);
+        finally = ParseBlockStatement();
     }
     return builder()->NewTryCatchStatement(try_block, catch_expr, catch_block,
         finally);

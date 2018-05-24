@@ -26,6 +26,9 @@ public:
 
     virtual Expression* NewStringLiteral(Position &loc, std::string str);
 
+    virtual Expression* NewRegExpLiteral(Position &loc, std::string str,
+        const std::vector<RegExpFlags> &flags);
+
     virtual Expression* NewTemplateLiteral(Position &loc, std::string str);
 
     virtual Expression* NewArrayLiteral(Position &loc, ProxyArray arr);

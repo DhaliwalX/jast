@@ -214,6 +214,37 @@ TEST_F(TokenizerTest, ComplexTest9) {
     CHECK(SEMICOLON);
 }
 
+TEST_F(TokenizerTest, RegexTest1) {
+    INIT("/.*/");
+
+    CHECK(REGEX);
+}
+
+TEST_F(TokenizerTest, RegexTest2) {
+    std::istringstream stream("/(?:^|\\s)\\/\\/(.+?)$/gm");
+    Scanner scanner(stream);
+    Tokenizer tokenizer(&scanner);
+
+    ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
+}
+
+TEST_F(TokenizerTest, RegexTest3) {
+    std::istringstream stream("/\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}/");
+    Scanner scanner(stream);
+    Tokenizer tokenizer(&scanner);
+
+    ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
+}
+
+TEST_F(TokenizerTest, RegexTest4) {
+    std::istringstream stream("/prince/");
+    Scanner scanner(stream);
+    Tokenizer tokenizer(&scanner);
+
+    ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
+}
+
+
 TEST_F(TokenizerTest, ComplexTest10) {
 
 }

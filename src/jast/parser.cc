@@ -133,6 +133,26 @@ Expression* Parser::ParsePrimary()
                                         ParseNumber(lex()->currentToken()));
     } else if (tok == TEMPLATE) {
         result = builder()->NewTemplateLiteral(lex()->currentToken().view());
+    } else if (tok == REGEX) {
+        std::string regex = lex()->currentToken().view();
+        auto pos = regex.rfind("$");
+        auto flags = regex.substr(pos);
+        std::cout << flags << std::endl;
+        std::vector<RegExpFlags> fs;
+        for (auto &flag : flags) {
+            if (flag == 'g') {
+                fs.push_back(RegExpFlags::kGlobal);
+            } else if (flag == 'i') {
+                fs.push_back(RegExpFlags::kIgnoreCase);
+            } else if (flag == 'm') {
+                fs.push_back(RegExpFlags::kMultiline);
+            } else if (flag == 'y') {
+                fs.push_back(RegExpFlags::kSticky);
+            } else if (flag == 'u') {
+                fs.push_back(RegExpFlags::kUnicode);
+            }
+        }
+        result = builder()->NewRegExpLiteral(regex.substr(0, pos), fs);
     } else if (tok == STRING) {
         result = builder()->NewStringLiteral(lex()->currentToken().view());
     } else if (tok == IDENTIFIER) {

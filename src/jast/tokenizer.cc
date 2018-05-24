@@ -337,8 +337,14 @@ Token Tokenizer::advance_internal() {
                         _ position(), _ seek());
                 }
             } else {
+                bool ok = true;
                 _ putback(next);
-                break;
+                Token t = parseRegex(&ok);
+                if (!ok) {
+                    break;
+                } else {
+                    return t;
+                }
             }
         } else if (!IsSpace(ch)) {
             break;
@@ -438,6 +444,51 @@ Token Tokenizer::advance_internal() {
     }
 
     return Token(std::string("ILLEGAL"), TokenType::INVALID, position, seek);
+}
+
+Token Tokenizer::parseRegex(bool *ok) {
+    std::string buffer;
+    auto seek = _ seek();
+    auto position = _ position();
+
+    char ch = _ readchar();
+
+    while (ch != '/') {
+        if (ch == EOF || ch == '\n') {
+            *ok = false;
+            for (int i = buffer.length() - 1; i >= 0; i--) {
+                _ putback(buffer[i]);
+            }
+            return Token(std::string("ERROR"), TokenType::ERROR, position, seek);
+        }
+
+        if (ch == '\\') {
+            buffer.push_back(ch);
+            ch = _ readchar();
+        }
+
+        buffer.push_back(ch);
+        ch = _ readchar();
+    }
+
+    // adding end marker
+    buffer.push_back('$');
+
+    // parse regex flags g, i, m, u, y
+    // Including special case n when there is no flag present
+    ch = _ readchar();
+    bool flag_present = false;
+    while (ch == 'g' || ch == 'i' || ch == 'm' || ch == 'u' || ch == 'y') {
+        flag_present = true;
+        buffer.push_back(ch);
+        ch = _ readchar();
+    }
+
+    if (!flag_present) {
+        buffer.push_back('n');
+    }
+
+    return Token(buffer, TokenType::REGEX, position, seek);
 }
 
 Token Tokenizer::parseString(char delim) {

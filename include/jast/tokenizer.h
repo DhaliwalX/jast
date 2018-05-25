@@ -15,6 +15,7 @@ class TokenizerState;
 class Tokenizer {
 public:
     Tokenizer(CharacterStream *stream);
+    ~Tokenizer();
     TokenType peek();
 
     void advance(bool divide_expected = false);

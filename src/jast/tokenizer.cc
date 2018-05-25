@@ -281,6 +281,11 @@ Tokenizer::Tokenizer(CharacterStream *stream)
     : state_{ new TokenizerState(stream) }
 { }
 
+Tokenizer::~Tokenizer()
+{
+    delete state_;
+}
+
 #define _ state_->
 
 void Tokenizer::reset(CharacterStream *stream) {

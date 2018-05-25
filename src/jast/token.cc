@@ -34,3 +34,13 @@ std::string Token::str(TokenType type) {
 }
 
 }
+
+bool IsKeyword(TokenType type) {
+    switch (type) {
+#define K(t, k, p) case t:
+#include "jast/tokens.inc"
+        return true;
+    default:
+        return false;
+    }
+}

@@ -3,9 +3,13 @@
 
 #include "jast/common.h"
 #include "jast/source-locator.h"
+#include "jast/scope.h"
+#include "jast/handle.h"
+
 #include <vector>
 #include <string>
 #include <map>
+#include <cassert>
 
 namespace jast {
 #ifdef NO_EMIT_FUNCTION
@@ -14,11 +18,24 @@ namespace jast {
 #   define EMIT_FUNCTION
 #endif
 
-#define DEFINE_NODE_TYPE(class) \
-    bool Is##class() const override { return true; }   \
-    class* As##class() override { return this; }  \
-    ASTNodeType type() const override { return ASTNodeType::k##class; }  \
-    void Accept(ASTVisitor *visitor) override
+#define DEFINE_NODE_TYPE(Type) \
+public: \
+    friend class ASTVisitor; \
+    friend class Expression; \
+    friend class ASTBuilder; \
+    friend class ASTFactory; \
+    Type(const Position &pos, Scope *scope) \
+        : Expression(pos, scope) \
+    { } \
+    virtual ~Type() = default; \
+    bool Is##Type() const override { return true; }   \
+    std::shared_ptr<Type> As##Type() override \
+    { return std::dynamic_pointer_cast<Type>(shared_from_this()); }  \
+    ASTNodeType type() const override { return ASTNodeType::k##Type; }  \
+    void Accept(ASTVisitor *visitor) override; \
+protected: \
+    static Handle<Type> Create(const Position &pos, Scope *scope) \
+    { return MakeHandle<Type>(pos, scope); }
 
 #define AST_NODE_LIST(M)    \
     M(NullLiteral)          \
@@ -78,20 +95,22 @@ AST_NODE_LIST(AST_NODE_TYPE)
 
 extern const char *type_as_string[(int)ASTNodeType::kNrType];
 
-class Expression {
+class Expression : public std::enable_shared_from_this<Expression> {
 protected:
-    Expression(Position &loc) :
-        loc_{ loc }
+    Expression(const Position &loc, Scope *scope) :
+        loc_{ loc }, scope_{ scope }
     { }
 public:
     virtual ~Expression() { }
     virtual void Accept(ASTVisitor *visitor) = 0;
     virtual bool ProduceRValue() { return true; }
     virtual ASTNodeType type() const = 0;
+    virtual void SetScope(Scope *scope) { scope_ = scope; }
+    virtual Scope *GetScope() { return scope_; }
 
 // helper conversion functions
 #define AS_EXPRESSION_FUNCTION(Type)    \
-    virtual Type *As##Type() { return nullptr; }
+    virtual std::shared_ptr<Type> As##Type() { assert(0 && "Expression is not " #Type); }
 AST_NODE_LIST(AS_EXPRESSION_FUNCTION)
 #undef AS_EXPRESSION_FUNCTION
 
@@ -103,21 +122,22 @@ AST_NODE_LIST(IS_EXPRESSION_FUNCTION)
 
 private:
     Position loc_;
+    Scope *scope_;
 };
 
-using ProxyArray = std::vector<std::unique_ptr<Expression>>;
-using ProxyObject = std::map<std::string, std::unique_ptr<Expression>>;
+using ProxyArray = std::vector<Handle<Expression>>;
+using ProxyObject = std::map<std::string, Handle<Expression>>;
 
 // ExpressionList ::= helper class representing a list of expressions
 class ExpressionList {
 public:
-    using iterator = std::vector<Expression*>::iterator;
+    using iterator = std::vector<Handle<Expression>>::iterator;
 
     ExpressionList()
         : exprs_{ }
     { }
 
-    void Insert(Expression *expr)
+    void Insert(Handle<Expression> expr)
     {
         exprs_.push_back(expr);
     }
@@ -127,26 +147,23 @@ public:
         return exprs_.size();
     }
 
-    std::vector<Expression *> *raw_list() { return &exprs_; }
+    std::vector<Handle<Expression>> &raw_list() { return exprs_; }
 
     ~ExpressionList()
     {
-        for (auto &expr : exprs_) {
-            delete expr;
-        }
         exprs_.clear();
     }
 
     iterator begin() { return exprs_.begin(); }
     iterator end() { return exprs_.end(); }
 private:
-    std::vector<Expression *> exprs_;
+    std::vector<Handle<Expression>> exprs_;
 };
 
 class NullLiteral : public Expression {
 public:
-    NullLiteral(Position &loc)
-        : Expression(loc)
+    NullLiteral(Position &loc, Scope *scope)
+        : Expression(loc, scope)
     { }
 
     DEFINE_NODE_TYPE(NullLiteral);
@@ -154,8 +171,8 @@ public:
 
 class UndefinedLiteral : public Expression {
 public:
-    UndefinedLiteral(Position &loc)
-        : Expression(loc)
+    UndefinedLiteral(Position &loc, Scope *scope)
+        : Expression(loc, scope)
     { }
 
     DEFINE_NODE_TYPE(UndefinedLiteral);
@@ -163,20 +180,20 @@ public:
 
 class ThisHolder : public Expression {
 public:
-    ThisHolder(Position &loc)
-        : Expression(loc)
+    ThisHolder(Position &loc, Scope *scope)
+        : Expression(loc, scope)
     { }
 
-    DEFINE_NODE_TYPE(ThisHolder);
     bool ProduceRValue() override { return false; }
+    DEFINE_NODE_TYPE(ThisHolder);
 };
 
 class IntegralLiteral : public Expression {
 private:
     double value_;
 public:
-    IntegralLiteral(Position &loc, double value)
-        : Expression(loc), value_(value)
+    IntegralLiteral(Position &loc, Scope *scope, double value)
+        : Expression(loc, scope), value_(value)
     { }
     
     double value() { return value_; }
@@ -187,8 +204,8 @@ class StringLiteral : public Expression {
 private:
     std::string str_;
 public:
-    StringLiteral(Position &loc, const std::string &str)
-        : Expression(loc), str_(str)
+    StringLiteral(Position &loc, Scope *scope, const std::string &str)
+        : Expression(loc, scope), str_(str)
     { }
 
     std::string &string() { return str_; }
@@ -200,8 +217,8 @@ private:
     std::string template_string_;
 
 public:
-    TemplateLiteral(Position &loc, const std::string &template_string)
-        : Expression(loc), template_string_{ template_string }
+    TemplateLiteral(Position &loc, Scope *scope, const std::string &template_string)
+        : Expression(loc, scope), template_string_{ template_string }
     { }
 
     std::string &template_string() { return template_string_; }
@@ -210,8 +227,8 @@ public:
 
 class ArrayLiteral : public Expression {
 public:
-    ArrayLiteral(Position &loc, ProxyArray exprs)
-        : Expression(loc), exprs_{ std::move(exprs) }
+    ArrayLiteral(Position &loc, Scope *scope, ProxyArray exprs)
+        : Expression(loc, scope), exprs_{ std::move(exprs) }
     { }
 
     ProxyArray &exprs() { return exprs_; }
@@ -225,8 +242,8 @@ private:
 
 class ObjectLiteral : public Expression {
 public:
-    ObjectLiteral(Position &loc, ProxyObject props)
-        : Expression(loc), Props{ std::move(props) }
+    ObjectLiteral(Position &loc, Scope *scope, ProxyObject props)
+        : Expression(loc, scope), Props{ std::move(props) }
     { }
 
     ProxyObject &proxy() { return Props; }
@@ -242,8 +259,8 @@ class Identifier : public Expression {
 private:
     std::string name_;
 public:
-    Identifier(Position &loc, const std::string &name)
-        : Expression(loc), name_(name)
+    Identifier(Position &loc, Scope *scope, const std::string &name)
+        : Expression(loc, scope), name_(name)
     { }
 
     const std::string &GetName() const { return name_; }
@@ -254,8 +271,8 @@ public:
 class BooleanLiteral : public Expression {
     bool pred_;
 public:
-    BooleanLiteral(Position &loc, bool val)
-        : Expression(loc), pred_(val) { }   
+    BooleanLiteral(Position &loc, Scope *scope, bool val)
+        : Expression(loc, scope), pred_(val) { }   
 
     bool pred() { return pred_; }
     DEFINE_NODE_TYPE(BooleanLiteral);
@@ -271,12 +288,11 @@ enum class RegExpFlags : uint {
 
 class RegExpLiteral : public Expression {
 public:
-    RegExpLiteral(Position &loc, const std::string &regex,
+    RegExpLiteral(Position &loc, Scope *scope, const std::string &regex,
             const std::vector<RegExpFlags> &flags)
-        : Expression(loc), regex_{regex}, flags_{ flags }
+        : Expression(loc, scope), regex_{regex}, flags_{ flags }
     { }
 
-    DEFINE_NODE_TYPE(RegExpLiteral);
 
     std::string &regex() {
         return regex_;
@@ -285,6 +301,7 @@ public:
     std::vector<RegExpFlags> &flags() {
         return flags_;
     }
+    DEFINE_NODE_TYPE(RegExpLiteral);
 private:
     std::string regex_;
     std::vector<RegExpFlags> flags_;
@@ -292,16 +309,16 @@ private:
 
 class ArgumentList : public Expression {
 public:
-    ArgumentList(Position &loc, ExpressionList *args)
-        : Expression(loc), args_{ std::move(args) }
+    ArgumentList(Position &loc, Scope *scope, Handle<ExpressionList> args)
+        : Expression(loc, scope), args_{ std::move(args) }
     { }
 
-    ExpressionList *args() { return args_.get(); }
+    Handle<ExpressionList> args() { return args_; }
     auto length() { return args()->Size(); }
 
     DEFINE_NODE_TYPE(ArgumentList);
 private:
-    std::unique_ptr<ExpressionList> args_;
+    Handle<ExpressionList> args_;
 };
 
 enum class MemberAccessKind {
@@ -323,79 +340,79 @@ enum class MemberAccessKind {
 //          a       (g)
 class CallExpression : public Expression {
 public:
-    CallExpression(Position &loc, MemberAccessKind kind,
-        Expression *expr, Expression *member)
-        : Expression(loc), kind_{ kind }, expr_(expr), member_(member)
+    CallExpression(Position &loc, Scope *scope, MemberAccessKind kind,
+        Handle<Expression> expr, Handle<Expression> member)
+        : Expression(loc, scope), kind_{ kind }, expr_(expr), member_(member)
     { }
-    DEFINE_NODE_TYPE(CallExpression);
 
-    Expression *member() { return member_.get(); }
+    Handle<Expression> member() { return member_; }
     MemberAccessKind kind() { return kind_; }
 
-    Expression *expr() { return expr_.get(); }
+    Handle<Expression> expr() { return expr_; }
     bool ProduceRValue() override { return false; }
+    DEFINE_NODE_TYPE(CallExpression);
 private:
     MemberAccessKind kind_;
-    std::unique_ptr<Expression> expr_;
-    std::unique_ptr<Expression> member_;
+    Handle<Expression> expr_;
+    Handle<Expression> member_;
 };
 
 // class DotMemberExpression : public Expression {
 // public:
-//     DotMemberExpression(Position &loc, Expression *mem)
-//         : Expression(loc), mem_(mem)
+//     DotMemberExpression(Position &loc, Scope *scope, Handle<Expression> mem)
+//         : Expression(loc, scope), mem_(mem)
 //     { }
 //     DEFINE_NODE_TYPE(DotMemberExpression);
 
-//     Expression *member() { return mem_.get(); }
+//     Handle<Expression> member() { return mem_; }
 //     bool ProduceRValue() override { return false; }
 // private:
-//     std::unique_ptr<Expression> mem_;
+//     Handle<Expression> mem_;
 // };
 
 // class IndexMemberExpression : public Expression {
 // public:
-//     IndexMemberExpression(Position &loc, Expression *expr)
-//         : Expression(loc), expr_{ expr }
+//     IndexMemberExpression(Position &loc, Scope *scope, Handle<Expression> expr)
+//         : Expression(loc, scope), expr_{ expr }
 //     { }
 
 //     DEFINE_NODE_TYPE(IndexMemberExpression);
-//     Expression *expr() { return expr_.get(); }
+//     Handle<Expression> expr() { return expr_; }
 //     bool ProduceRValue() override { return false; }
 // private:
-//     std::unique_ptr<Expression> expr_;
+//     Handle<Expression> expr_;
 // };
 
 class MemberExpression : public Expression {
 public:
-    MemberExpression(Position &loc, MemberAccessKind kind,
-        Expression *expr, Expression *member)
-        : Expression(loc), kind_{ kind }, expr_(expr), member_(member)
+    MemberExpression(Position &loc, Scope *scope, MemberAccessKind kind,
+        Handle<Expression> expr, Handle<Expression> member)
+        : Expression(loc, scope), kind_{ kind }, expr_(expr), member_(member)
     { }
-    DEFINE_NODE_TYPE(MemberExpression);
 
-    Expression *member() { return member_.get(); }
+    Handle<Expression> member() { return member_; }
     MemberAccessKind kind() { return kind_; }
 
-    Expression *expr() { return expr_.get(); }
+    Handle<Expression> expr() { return expr_; }
     bool ProduceRValue() override { return false; }
+    DEFINE_NODE_TYPE(MemberExpression);
 private:
     MemberAccessKind kind_;
-    std::unique_ptr<Expression> expr_;
-    std::unique_ptr<Expression> member_;
+    Handle<Expression> expr_;
+    Handle<Expression> member_;
 };
 
 class NewExpression : public Expression {
 public:
-    NewExpression(Position &loc, Expression *member)
-        : Expression(loc), member_{ member }
+    NewExpression(Position &loc, Scope *scope, Handle<Expression> member)
+        : Expression(loc, scope), member_{ member }
     { }
 
-    DEFINE_NODE_TYPE(NewExpression);
-    Expression *member() { return member_.get(); }
+    Handle<Expression> member() { return member_; }
     bool ProduceRValue() override { return false; }
+    DEFINE_NODE_TYPE(NewExpression);
 private:
-    std::unique_ptr<Expression> member_; 
+    Handle<Expression> member_; 
 };
 
 enum class PrefixOperation {
@@ -411,17 +428,17 @@ enum class PrefixOperation {
 class PrefixExpression : public Expression {
 public:
 
-    PrefixExpression(Position &loc, PrefixOperation op, Expression *expr)
-        : Expression(loc), op_{ op }, expr_{ expr }
+    PrefixExpression(Position &loc, Scope *scope, PrefixOperation op, Handle<Expression> expr)
+        : Expression(loc, scope), op_{ op }, expr_{ expr }
     { }
 
-    DEFINE_NODE_TYPE(PrefixExpression);
 
     PrefixOperation op() { return op_; }
-    Expression *expr() { return expr_.get(); }
+    Handle<Expression> expr() { return expr_; }
+    DEFINE_NODE_TYPE(PrefixExpression);
 private:
     PrefixOperation op_;
-    std::unique_ptr<Expression> expr_;
+    Handle<Expression> expr_;
 };
 
 enum class PostfixOperation {
@@ -431,17 +448,17 @@ enum class PostfixOperation {
 
 class PostfixExpression : public Expression {
 public:
-    PostfixExpression(Position &loc, PostfixOperation op, Expression *expr)
-        : Expression(loc), op_{ op }, expr_{ expr }
+    PostfixExpression(Position &loc, Scope *scope, PostfixOperation op, Handle<Expression> expr)
+        : Expression(loc, scope), op_{ op }, expr_{ expr }
     { }
     
-    DEFINE_NODE_TYPE(PostfixExpression);
 
     PostfixOperation op() { return op_; }
-    Expression *expr() { return expr_.get(); }
+    Handle<Expression> expr() { return expr_; }
+    DEFINE_NODE_TYPE(PostfixExpression);
 private:
     PostfixOperation op_;
-    std::unique_ptr<Expression> expr_;
+    Handle<Expression> expr_;
 };
 
 enum class BinaryOperation {
@@ -471,97 +488,97 @@ enum class BinaryOperation {
 };
 
 class BinaryExpression : public Expression {
-public:
     DEFINE_NODE_TYPE(BinaryExpression);
+public:
 
     BinaryOperation op() { return op_; }
-    Expression *lhs() { return lhs_.get(); }
-    Expression *rhs() { return rhs_.get(); }
+    Handle<Expression> lhs() { return lhs_; }
+    Handle<Expression> rhs() { return rhs_; }
 private:
     BinaryOperation op_;
-    std::unique_ptr<Expression> lhs_;
-    std::unique_ptr<Expression> rhs_;
+    Handle<Expression> lhs_;
+    Handle<Expression> rhs_;
 public:
-    BinaryExpression(Position &loc, BinaryOperation op,
-        Expression *lhs, Expression *rhs)
-        : Expression(loc), op_(op), lhs_(lhs), rhs_(rhs) { }
+    BinaryExpression(Position &loc, Scope *scope, BinaryOperation op,
+        Handle<Expression> lhs, Handle<Expression> rhs)
+        : Expression(loc, scope), op_(op), lhs_(lhs), rhs_(rhs) { }
 };
 
 class AssignExpression : public Expression {
 public:
-    AssignExpression(Position &loc, Expression *lhs, Expression *rhs)
-        : Expression(loc), lhs_(lhs), rhs_(rhs) { }
-    DEFINE_NODE_TYPE(AssignExpression);
+    AssignExpression(Position &loc, Scope *scope, Handle<Expression> lhs, Handle<Expression> rhs)
+        : Expression(loc, scope), lhs_(lhs), rhs_(rhs) { }
 
-    Expression *lhs() { return lhs_.get(); }
-    Expression *rhs() { return rhs_.get(); }
+    Handle<Expression> lhs() { return lhs_; }
+    Handle<Expression> rhs() { return rhs_; }
+    DEFINE_NODE_TYPE(AssignExpression);
 private:
-    std::unique_ptr<Expression> lhs_;
-    std::unique_ptr<Expression> rhs_;
+    Handle<Expression> lhs_;
+    Handle<Expression> rhs_;
 };
 
 class TernaryExpression : public Expression {
 public:
-    TernaryExpression(Position &loc, Expression *first,
-                      Expression *second, Expression *third)
-    : Expression(loc), first_(first), second_(second),
+    TernaryExpression(Position &loc, Scope *scope, Handle<Expression> first,
+                      Handle<Expression> second, Handle<Expression> third)
+    : Expression(loc, scope), first_(first), second_(second),
         third_(third)
     { }
-    DEFINE_NODE_TYPE(TernaryExpression);
 
-    Expression *first() { return first_.get(); }
-    Expression *second() { return second_.get(); }
-    Expression *third() { return third_.get(); }
+    Handle<Expression> first() { return first_; }
+    Handle<Expression> second() { return second_; }
+    Handle<Expression> third() { return third_; }
+    DEFINE_NODE_TYPE(TernaryExpression);
 private:
-    std::unique_ptr<Expression> first_;
-    std::unique_ptr<Expression> second_;
-    std::unique_ptr<Expression> third_;
+    Handle<Expression> first_;
+    Handle<Expression> second_;
+    Handle<Expression> third_;
 };
 
 class CommaExpression : public Expression {
 public:
-    CommaExpression(Position &loc, ExpressionList *exprs)
-        : Expression(loc), exprs_{ exprs }
+    CommaExpression(Position &loc, Scope *scope, Handle<ExpressionList> exprs)
+        : Expression(loc, scope), exprs_{ exprs }
     { }
-    DEFINE_NODE_TYPE(CommaExpression);
 
-    ExpressionList *exprs() { return exprs_.get(); }
+    Handle<ExpressionList> exprs() { return exprs_; }
+    DEFINE_NODE_TYPE(CommaExpression);
 private:
-    std::unique_ptr<ExpressionList> exprs_;
+    Handle<ExpressionList> exprs_;
 };
 
 class Declaration : public Expression {
 public:
-    Declaration(Position &loc, std::string name, Expression *init)
-        : Expression(loc), name_{ name }, init_{ init }
+    Declaration(Position &loc, Scope *scope, std::string name, Handle<Expression> init)
+        : Expression(loc, scope), name_{ name }, init_{ init }
     { }
 
-    DEFINE_NODE_TYPE(Declaration);
 
     std::string &name() { return name_; }
 
-    Expression *expr() { return init_.get(); }
+    Handle<Expression> expr() { return init_; }
+    DEFINE_NODE_TYPE(Declaration);
 private:
     std::string name_;
-    std::unique_ptr<Expression> init_;
+    Handle<Expression> init_;
 };
 
 class DeclarationList : public Expression {
 public:
-    DeclarationList(Position &loc, 
-        std::vector<std::unique_ptr<Declaration>> exprs)
-        : Expression(loc), exprs_{ std::move(exprs) }
+    DeclarationList(Position &loc, Scope *scope, 
+        std::vector<Handle<Declaration>> exprs)
+        : Expression(loc, scope), exprs_{ std::move(exprs) }
     { }
-    DEFINE_NODE_TYPE(DeclarationList);
 
-    std::vector<std::unique_ptr<Declaration>> &exprs() { return exprs_; }
+    std::vector<Handle<Declaration>> &exprs() { return exprs_; }
 
     void Append(Declaration *decl)
     {
-        exprs_.push_back(std::unique_ptr<Declaration>(decl));
+        exprs_.push_back(Handle<Declaration>(decl));
     }
+    DEFINE_NODE_TYPE(DeclarationList);
 private:
-    std::vector<std::unique_ptr<Declaration>> exprs_;
+    std::vector<Handle<Declaration>> exprs_;
 };
 
 } // namespace jast

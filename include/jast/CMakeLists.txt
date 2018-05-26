@@ -7,7 +7,10 @@ set(JAST_HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/context.h
     ${CMAKE_CURRENT_SOURCE_DIR}/expression.h
     ${CMAKE_CURRENT_SOURCE_DIR}/parser.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/handle.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser-builder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/scope.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source-locator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source.h
     ${CMAKE_CURRENT_SOURCE_DIR}/statement.h

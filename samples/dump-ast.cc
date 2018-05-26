@@ -1,4 +1,4 @@
-#include "pretty-printer.h"
+#include "dump-ast.h"
 
 namespace printer {
 

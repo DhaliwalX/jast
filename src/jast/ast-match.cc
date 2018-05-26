@@ -4,7 +4,7 @@
 
 namespace jast {
 
-bool MatchExpressionList(ExpressionList *a, ExpressionList *b)
+bool MatchExpressionList(Handle<ExpressionList> a, Handle<ExpressionList> b)
 {
     auto ait = a->begin();
     auto bit = b->begin();
@@ -18,7 +18,7 @@ bool MatchExpressionList(ExpressionList *a, ExpressionList *b)
     return true;
 }
 
-bool MatchArrayLiteral(ArrayLiteral *a, ArrayLiteral *b)
+bool MatchArrayLiteral(Handle<ArrayLiteral> a, Handle<ArrayLiteral> b)
 {
         auto &a_exprs = a->exprs();
         auto &b_exprs = b->exprs();
@@ -27,14 +27,14 @@ bool MatchArrayLiteral(ArrayLiteral *a, ArrayLiteral *b)
             return false;
 
         for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
-            if (!FastASTMatcher::match(a_exprs[i].get(), b_exprs[i].get()))
+            if (!FastASTMatcher::match(a_exprs[i], b_exprs[i]))
                 return false;
         }
 
         return true;
 }
 
-bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
+bool MatchObjectLiteral(Handle<ObjectLiteral> a, Handle<ObjectLiteral> b)
 {
     auto &a_object = a->proxy();
     auto &b_object = b->proxy();
@@ -45,7 +45,7 @@ bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
     auto it = b_object.begin();
     for (auto &p : a_object) {
         if ((it = b_object.find(p.first)) != b_object.end()) {
-            if (!FastASTMatcher::match(it->second.get(), p.second.get()))
+            if (!FastASTMatcher::match(it->second, p.second))
                 return false;
         } else {
             return false;
@@ -55,106 +55,106 @@ bool MatchObjectLiteral(ObjectLiteral *a, ObjectLiteral *b)
     return true;
 }
 
-bool MatchIdentifier(Identifier *a, Identifier *b)
+bool MatchIdentifier(Handle<Identifier> a, Handle<Identifier> b)
 {
     return a->GetName() == b->GetName();
 }
 
-bool MatchBooleanLiteral(BooleanLiteral *a, BooleanLiteral *b)
+bool MatchBooleanLiteral(Handle<BooleanLiteral> a, Handle<BooleanLiteral> b)
 {
     return a->pred() == b->pred();
 }
 
-bool MatchRegExpLiteral(RegExpLiteral *a, RegExpLiteral *b)
+bool MatchRegExpLiteral(Handle<RegExpLiteral> a, Handle<RegExpLiteral> b)
 {
     // TODO;
     return false;
 }
 
-bool MatchArgumentList(ArgumentList *a, ArgumentList *b)
+bool MatchArgumentList(Handle<ArgumentList> a, Handle<ArgumentList> b)
 {
     return MatchExpressionList(a->args(), b->args());
 }
 
-bool MatchCallExpression(CallExpression *a, CallExpression *b)
+bool MatchCallExpression(Handle<CallExpression> a, Handle<CallExpression> b)
 {
     return FastASTMatcher::match(a->member(), b->member())
         && FastASTMatcher::match(a->expr(), b->expr());
 }
 
-bool MatchMemberExpression(MemberExpression *a, MemberExpression *b)
+bool MatchMemberExpression(Handle<MemberExpression> a, Handle<MemberExpression> b)
 {
     return FastASTMatcher::match(a->member(), b->member())
         && FastASTMatcher::match(a->expr(), b->expr());
 }
 
-bool MatchNewExpression(NewExpression *a, NewExpression *b)
+bool MatchNewExpression(Handle<NewExpression> a, Handle<NewExpression> b)
 {
     return FastASTMatcher::match(a->member(), b->member());
 }
 
-bool MatchPrefixExpression(PrefixExpression *a, PrefixExpression *b)
+bool MatchPrefixExpression(Handle<PrefixExpression> a, Handle<PrefixExpression> b)
 {
     return (a->op() == b->op()) && (FastASTMatcher::match(a->expr(),
         b->expr()));
 }
 
-bool MatchPostfixExpression(PostfixExpression *a, PostfixExpression *b)
+bool MatchPostfixExpression(Handle<PostfixExpression> a, Handle<PostfixExpression> b)
 {
     return (a->op() == b->op()) && (FastASTMatcher::match(a->expr(),
         b->expr()));
 }
 
-bool MatchBinaryExpression(BinaryExpression *a, BinaryExpression *b)
+bool MatchBinaryExpression(Handle<BinaryExpression> a, Handle<BinaryExpression> b)
 {
     return (a->op() == b->op())
         && FastASTMatcher::match(a->lhs(), b->lhs())
         && FastASTMatcher::match(a->rhs(), b->rhs());
 }
 
-bool MatchAssignExpression(AssignExpression *a, AssignExpression *b)
+bool MatchAssignExpression(Handle<AssignExpression> a, Handle<AssignExpression> b)
 {
     return FastASTMatcher::match(a->lhs(), b->lhs())
         && FastASTMatcher::match(a->rhs(), b->rhs());
 }
 
-bool MatchTernaryExpression(TernaryExpression *a, TernaryExpression *b)
+bool MatchTernaryExpression(Handle<TernaryExpression> a, Handle<TernaryExpression> b)
 {
     return FastASTMatcher::match(a->first(), b->first())
         && FastASTMatcher::match(a->second(), b->second())
         && FastASTMatcher::match(a->third(), b->third());
 }
 
-bool MatchCommaExpression(CommaExpression *a, CommaExpression *b)
+bool MatchCommaExpression(Handle<CommaExpression> a, Handle<CommaExpression> b)
 {
     return MatchExpressionList(a->exprs(), b->exprs());
 }
 
-bool MatchDeclaration(Declaration *a, Declaration *b)
+bool MatchDeclaration(Handle<Declaration> a, Handle<Declaration> b)
 {
     return a->name() == b->name()
         && FastASTMatcher::match(a->expr(), b->expr());
 }
 
-bool MatchDeclarationList(DeclarationList *a, DeclarationList *b)
+bool MatchDeclarationList(Handle<DeclarationList> a, Handle<DeclarationList> b)
 {
     auto &a_exprs = a->exprs();
     auto &b_exprs = b->exprs();
 
     for (decltype(a_exprs.size()) i = 0; i < a_exprs.size(); i++) {
-        if (!MatchDeclaration(a_exprs[i].get(), b_exprs[i].get()))
+        if (!MatchDeclaration(a_exprs[i], b_exprs[i]))
             return false;
     }
 
     return true;
 }
 
-bool MatchBlockStatement(BlockStatement *a, BlockStatement *b)
+bool MatchBlockStatement(Handle<BlockStatement> a, Handle<BlockStatement> b)
 {
     return MatchExpressionList(a->statements(), b->statements());
 }
 
-bool MatchForStatement(ForStatement *a, ForStatement *b)
+bool MatchForStatement(Handle<ForStatement> a, Handle<ForStatement> b)
 {
     return FastASTMatcher::match(a->init(), b->init())
         && FastASTMatcher::match(a->condition(), b->condition())
@@ -162,34 +162,34 @@ bool MatchForStatement(ForStatement *a, ForStatement *b)
         && FastASTMatcher::match(a->body(), b->body());
 }
 
-bool MatchWhileStatement(WhileStatement *a, WhileStatement *b)
+bool MatchWhileStatement(Handle<WhileStatement> a, Handle<WhileStatement> b)
 {
     return FastASTMatcher::match(a->condition(), b->condition())
         && FastASTMatcher::match(a->body(), b->body());
 }
 
-bool MatchDoWhileStatement(DoWhileStatement *a, DoWhileStatement *b)
+bool MatchDoWhileStatement(Handle<DoWhileStatement> a, Handle<DoWhileStatement> b)
 {
     return FastASTMatcher::match(a->condition(), b->condition())
         && FastASTMatcher::match(a->body(), b->body());
 }
 
-bool MatchBreakStatement(BreakStatement *a, BreakStatement *b)
+bool MatchBreakStatement(Handle<BreakStatement> a, Handle<BreakStatement> b)
 {
     return FastASTMatcher::match(a->label(), b->label());
 }
 
-bool MatchContinueStatement(ContinueStatement *a, ContinueStatement *b)
+bool MatchContinueStatement(Handle<ContinueStatement> a, Handle<ContinueStatement> b)
 {
     return FastASTMatcher::match(a->label(), b->label());
 }
 
-bool MatchThrowStatement(ThrowStatement *a, ThrowStatement *b)
+bool MatchThrowStatement(Handle<ThrowStatement> a, Handle<ThrowStatement> b)
 {
     return FastASTMatcher::match(a->expr(), b->expr());
 }
 
-bool MatchTryStatement(TryCatchStatement *a, TryCatchStatement *b)
+bool MatchTryStatement(Handle<TryCatchStatement> a, Handle<TryCatchStatement> b)
 {
     return FastASTMatcher::match(a->try_block(), b->try_block())
         && FastASTMatcher::match(a->catch_expr(), b->catch_expr())
@@ -197,19 +197,19 @@ bool MatchTryStatement(TryCatchStatement *a, TryCatchStatement *b)
         && FastASTMatcher::match(a->finally(), b->finally());
 }
 
-bool MatchLabelledStatement(LabelledStatement *a, LabelledStatement *b)
+bool MatchLabelledStatement(Handle<LabelledStatement> a, Handle<LabelledStatement> b)
 {
     return a->label() == b->label() && FastASTMatcher::match(a->expr(),
         b->expr());
 }
 
-bool MatchCaseClauseStatement(CaseClauseStatement *a, CaseClauseStatement *b)
+bool MatchCaseClauseStatement(Handle<CaseClauseStatement> a, Handle<CaseClauseStatement> b)
 {
     return FastASTMatcher::match(a->clause(), b->clause())
         && FastASTMatcher::match(a->stmt(), b->stmt());
 }
 
-bool MatchClausesList(ClausesList *a, ClausesList *b)
+bool MatchClausesList(Handle<ClausesList> a, Handle<ClausesList> b)
 {
     if (!a->HasDefaultCase() || !b->HasDefaultCase()
         || a->Size() != b->Size())
@@ -226,43 +226,43 @@ bool MatchClausesList(ClausesList *a, ClausesList *b)
     return true;
 }
 
-bool MatchSwitchStatement(SwitchStatement *a, SwitchStatement *b)
+bool MatchSwitchStatement(Handle<SwitchStatement> a, Handle<SwitchStatement> b)
 {
     return FastASTMatcher::match(a->expr(), b->expr())
         && MatchClausesList(a->clauses(), b->clauses());
 }
 
-bool MatchFunctionPrototype(FunctionPrototype *a, FunctionPrototype *b)
+bool MatchFunctionPrototype(Handle<FunctionPrototype> a, Handle<FunctionPrototype> b)
 {
     return a->GetName() == b->GetName()
         && a->GetArgs() == b->GetArgs();
 }
 
-bool MatchFunctionStatement(FunctionStatement *a, FunctionStatement *b)
+bool MatchFunctionStatement(Handle<FunctionStatement> a, Handle<FunctionStatement> b)
 {
     return MatchFunctionPrototype(a->proto(), b->proto())
         && FastASTMatcher::match(a->body(), b->body());
 }
 
-bool MatchIfStatement(IfStatement *a, IfStatement *b)
+bool MatchIfStatement(Handle<IfStatement> a, Handle<IfStatement> b)
 {
     return FastASTMatcher::match(a->condition(), b->condition())
         && FastASTMatcher::match(a->body(), b->body());
 }
 
-bool MatchIfElseStatement(IfElseStatement *a, IfElseStatement *b)
+bool MatchIfElseStatement(Handle<IfElseStatement> a, Handle<IfElseStatement> b)
 {
     return FastASTMatcher::match(a->condition(), b->condition())
         && FastASTMatcher::match(a->body(), b->body())
         && FastASTMatcher::match(a->els(), b->els());
 }
 
-bool MatchIfElseStatement(ReturnStatement *a, ReturnStatement *b)
+bool MatchIfElseStatement(Handle<ReturnStatement> a, Handle<ReturnStatement> b)
 {
     return FastASTMatcher::match(a->expr(), b->expr());
 }
 
-bool FastASTMatcher::match(Expression *a, Expression *b)
+bool FastASTMatcher::match(Handle<Expression> a, Handle<Expression> b)
 {
     if (!a && !b)
         return true;
@@ -372,7 +372,7 @@ bool FastASTMatcher::match(Expression *a, Expression *b)
     return false;
 }
 
-bool LazyASTMatcher::match(Expression *a, Expression *b)
+bool LazyASTMatcher::match(Handle<Expression> a, Handle<Expression> b)
 {
     // TODO := write code here...
     return false;

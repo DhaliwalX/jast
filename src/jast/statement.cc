@@ -11,7 +11,7 @@ using namespace jast;
 //     return os << "})";
 // }
 
-void BlockStatement::PushExpression(Expression *expr)
+void BlockStatement::PushExpression(Handle<Expression> expr)
 {
     stmts_->Insert(expr);
 }

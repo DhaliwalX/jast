@@ -2,218 +2,218 @@
 
 namespace jast {
 
-ExpressionList *ASTBuilder::NewExpressionList()
+Handle<ExpressionList> ASTBuilder::NewExpressionList()
 {
     return factory()->NewExpressionList();
 }
 
-Expression *ASTBuilder::NewNullLiteral()
+Handle<Expression> ASTBuilder::NewNullLiteral()
 {
-    return factory()->NewNullLiteral(locator()->loc());
+    return factory()->NewNullLiteral(locator()->loc(), manager()->current());
 }
 
-Expression *ASTBuilder::NewUndefinedLiteral()
+Handle<Expression> ASTBuilder::NewUndefinedLiteral()
 {
-    return factory()->NewUndefinedLiteral(locator()->loc());
+    return factory()->NewUndefinedLiteral(locator()->loc(), manager()->current());
 }
 
-Expression *ASTBuilder::NewThisHolder()
+Handle<Expression> ASTBuilder::NewThisHolder()
 {
-    return factory()->NewThisHolder(locator()->loc());
+    return factory()->NewThisHolder(locator()->loc(), manager()->current());
 }
 
-Expression *ASTBuilder::NewIntegralLiteral(double value)
+Handle<Expression> ASTBuilder::NewIntegralLiteral(double value)
 {
-    return factory()->NewIntegralLiteral(locator()->loc(), value);
+    return factory()->NewIntegralLiteral(locator()->loc(), manager()->current(), value);
 }
 
-Expression *ASTBuilder::NewStringLiteral(const std::string &str)
+Handle<Expression> ASTBuilder::NewStringLiteral(const std::string &str)
 {
-    return factory()->NewStringLiteral(locator()->loc(), str);
+    return factory()->NewStringLiteral(locator()->loc(), manager()->current(), str);
 }
 
-Expression *ASTBuilder::NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags)
+Handle<Expression> ASTBuilder::NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags)
 {
-    return factory()->NewRegExpLiteral(locator()->loc(), str, flags);
+    return factory()->NewRegExpLiteral(locator()->loc(), manager()->current(), str, flags);
 }
 
-Expression *ASTBuilder::NewTemplateLiteral(const std::string &str)
+Handle<Expression> ASTBuilder::NewTemplateLiteral(const std::string &str)
 {
-    return factory()->NewTemplateLiteral(locator()->loc(), str);
+    return factory()->NewTemplateLiteral(locator()->loc(), manager()->current(), str);
 }
 
-Expression *ASTBuilder::NewArrayLiteral(ProxyArray arr)
+Handle<Expression> ASTBuilder::NewArrayLiteral(ProxyArray arr)
 {
-    return factory()->NewArrayLiteral(locator()->loc(), std::move(arr));
+    return factory()->NewArrayLiteral(locator()->loc(), manager()->current(), std::move(arr));
 }
 
-Expression *ASTBuilder::NewObjectLiteral(ProxyObject obj)
+Handle<Expression> ASTBuilder::NewObjectLiteral(ProxyObject obj)
 {
-    return factory()->NewObjectLiteral(locator()->loc(), std::move(obj));
+    return factory()->NewObjectLiteral(locator()->loc(), manager()->current(), std::move(obj));
 }
 
-Expression *ASTBuilder::NewIdentifier(std::string name)
+Handle<Expression> ASTBuilder::NewIdentifier(std::string name)
 {
-    return factory()->NewIdentifier(locator()->loc(), name);
+    return factory()->NewIdentifier(locator()->loc(), manager()->current(), name);
 }
 
-Expression *ASTBuilder::NewBooleanLiteral(bool value)
+Handle<Expression> ASTBuilder::NewBooleanLiteral(bool value)
 {
-    return factory()->NewBooleanLiteral(locator()->loc(), value);
+    return factory()->NewBooleanLiteral(locator()->loc(), manager()->current(), value);
 }
 
-Expression *ASTBuilder::NewArgumentList(ExpressionList *args)
+Handle<Expression> ASTBuilder::NewArgumentList(Handle<ExpressionList> args)
 {
-    return factory()->NewArgumentList(locator()->loc(), args);
+    return factory()->NewArgumentList(locator()->loc(), manager()->current(), args);
 }
 
-Expression *ASTBuilder::NewCallExpression(MemberAccessKind kind,
-    Expression *func, Expression *args)
+Handle<Expression> ASTBuilder::NewCallExpression(MemberAccessKind kind,
+    Handle<Expression> func, Handle<Expression> args)
 {
-    return factory()->NewCallExpression(locator()->loc(), kind, func, args);
+    return factory()->NewCallExpression(locator()->loc(), manager()->current(), kind, func, args);
 }
 
-Expression *ASTBuilder::NewMemberExpression(MemberAccessKind kind,
-    Expression *func, Expression *args)
+Handle<Expression> ASTBuilder::NewMemberExpression(MemberAccessKind kind,
+    Handle<Expression> func, Handle<Expression> args)
 {
-    return factory()->NewMemberExpression(locator()->loc(), kind, func, args);
+    return factory()->NewMemberExpression(locator()->loc(), manager()->current(), kind, func, args);
 }
 
-Expression *ASTBuilder::NewNewExpression(Expression *expr)
+Handle<Expression> ASTBuilder::NewNewExpression(Handle<Expression> expr)
 {
-    return factory()->NewNewExpression(locator()->loc(), expr);
+    return factory()->NewNewExpression(locator()->loc(), manager()->current(), expr);
 }
 
-Expression *ASTBuilder::NewPrefixExpression(PrefixOperation op,
-    Expression *expr)
+Handle<Expression> ASTBuilder::NewPrefixExpression(PrefixOperation op,
+    Handle<Expression> expr)
 {
-    return factory()->NewPrefixExpression(locator()->loc(), op, expr);
+    return factory()->NewPrefixExpression(locator()->loc(), manager()->current(), op, expr);
 }
 
-Expression *ASTBuilder::NewPostfixExpression(PostfixOperation op,
-    Expression *expr)
+Handle<Expression> ASTBuilder::NewPostfixExpression(PostfixOperation op,
+    Handle<Expression> expr)
 {
-    return factory()->NewPostfixExpression(locator()->loc(), op, expr);
+    return factory()->NewPostfixExpression(locator()->loc(), manager()->current(), op, expr);
 }
 
-Expression *ASTBuilder::NewBinaryExpression(BinaryOperation op,
-    Expression *lhs, Expression *rhs)
+Handle<Expression> ASTBuilder::NewBinaryExpression(BinaryOperation op,
+    Handle<Expression> lhs, Handle<Expression> rhs)
 {
-    return factory()->NewBinaryExpression(locator()->loc(), op, lhs, rhs);
+    return factory()->NewBinaryExpression(locator()->loc(), manager()->current(), op, lhs, rhs);
 }
 
-Expression *ASTBuilder::NewAssignExpression(Expression *lhs, Expression *rhs)
+Handle<Expression> ASTBuilder::NewAssignExpression(Handle<Expression> lhs, Handle<Expression> rhs)
 {
-    return factory()->NewAssignExpression(locator()->loc(), lhs, rhs);
+    return factory()->NewAssignExpression(locator()->loc(), manager()->current(), lhs, rhs);
 }
 
-Expression *ASTBuilder::NewTernaryExpression(Expression *first,
-    Expression *second, Expression *third)
+Handle<Expression> ASTBuilder::NewTernaryExpression(Handle<Expression> first,
+    Handle<Expression> second, Handle<Expression> third)
 {
-    return factory()->NewTernaryExpression(locator()->loc(),
+    return factory()->NewTernaryExpression(locator()->loc(), manager()->current(),
         first, second, third);
 }
 
-Expression *ASTBuilder::NewCommaExpression(ExpressionList *list)
+Handle<Expression> ASTBuilder::NewCommaExpression(Handle<ExpressionList> list)
 {
-    return factory()->NewCommaExpression(locator()->loc(), list);
+    return factory()->NewCommaExpression(locator()->loc(), manager()->current(), list);
 }
 
-Expression *ASTBuilder::NewBlockStatement(ExpressionList *stmts)
+Handle<Expression> ASTBuilder::NewBlockStatement(Handle<ExpressionList> stmts)
 {
-    return factory()->NewBlockStatement(locator()->loc(), stmts);
+    return factory()->NewBlockStatement(locator()->loc(), manager()->current(), stmts);
 }
 
-Expression *ASTBuilder::NewForStatement(ForKind kind, Expression *init,
-    Expression *cond, Expression *update, Expression *body)
+Handle<Expression> ASTBuilder::NewForStatement(ForKind kind, Handle<Expression> init,
+    Handle<Expression> cond, Handle<Expression> update, Handle<Expression> body)
 {
-    return factory()->NewForStatement(locator()->loc(), kind, init,
+    return factory()->NewForStatement(locator()->loc(), manager()->current(), kind, init,
         cond, update, body);
 }
 
-Expression *ASTBuilder::NewWhileStatement(Expression *condition,
-    Expression *body)
+Handle<Expression> ASTBuilder::NewWhileStatement(Handle<Expression> condition,
+    Handle<Expression> body)
 {
-    return factory()->NewWhileStatement(locator()->loc(), condition, body);
+    return factory()->NewWhileStatement(locator()->loc(), manager()->current(), condition, body);
 }
 
-Expression *ASTBuilder::NewDoWhileStatement(Expression *condition,
-    Expression *body)
+Handle<Expression> ASTBuilder::NewDoWhileStatement(Handle<Expression> condition,
+    Handle<Expression> body)
 {
-    return factory()->NewDoWhileStatement(locator()->loc(), condition, body);
+    return factory()->NewDoWhileStatement(locator()->loc(), manager()->current(), condition, body);
 }
 
-Expression *ASTBuilder::NewFunctionPrototype(std::string name,
+Handle<Expression> ASTBuilder::NewFunctionPrototype(std::string name,
     std::vector<std::string> args)
 {
-    return factory()->NewFunctionPrototype(locator()->loc(), name,
+    return factory()->NewFunctionPrototype(locator()->loc(), manager()->current(), name,
         std::move(args));
 }
 
-Expression *ASTBuilder::NewFunctionStatement(FunctionPrototype *proto,
-    Expression *body)
+Handle<Expression> ASTBuilder::NewFunctionStatement(Handle<FunctionPrototype> proto,
+    Handle<Expression> body)
 {
-    return factory()->NewFunctionStatement(locator()->loc(), proto, body);
+    return factory()->NewFunctionStatement(locator()->loc(), manager()->current(), proto, body);
 }
 
-Expression *ASTBuilder::NewIfStatement(Expression *condition, Expression *then)
+Handle<Expression> ASTBuilder::NewIfStatement(Handle<Expression> condition, Handle<Expression> then)
 {
-    return factory()->NewIfStatement(locator()->loc(), condition, then);
+    return factory()->NewIfStatement(locator()->loc(), manager()->current(), condition, then);
 }
 
-Expression *ASTBuilder::NewIfElseStatement(Expression *condition,
-    Expression *then, Expression *els)
+Handle<Expression> ASTBuilder::NewIfElseStatement(Handle<Expression> condition,
+    Handle<Expression> then, Handle<Expression> els)
 {
-    return factory()->NewIfElseStatement(locator()->loc(), condition, then, els);
+    return factory()->NewIfElseStatement(locator()->loc(), manager()->current(), condition, then, els);
 }
 
-Expression *ASTBuilder::NewReturnStatement(Expression *expr)
+Handle<Expression> ASTBuilder::NewReturnStatement(Handle<Expression> expr)
 {
-    return factory()->NewReturnStatement(locator()->loc(), expr);
+    return factory()->NewReturnStatement(locator()->loc(), manager()->current(), expr);
 }
 
-Expression *ASTBuilder::NewTryCatchStatement(Expression *try_block,
-     Expression *catch_expr, Expression *catch_block, Expression *finally)
+Handle<Expression> ASTBuilder::NewTryCatchStatement(Handle<Expression> try_block,
+     Handle<Expression> catch_expr, Handle<Expression> catch_block, Handle<Expression> finally)
 {
-    return factory()->NewTryCatchStatement(locator()->loc(), try_block,
+    return factory()->NewTryCatchStatement(locator()->loc(), manager()->current(), try_block,
         catch_expr, catch_block, finally);
 }
 
-Expression *ASTBuilder::NewBreakStatement(Expression *label)
+Handle<Expression> ASTBuilder::NewBreakStatement(Handle<Expression> label)
 {
-    return factory()->NewBreakStatement(locator()->loc(), label);
+    return factory()->NewBreakStatement(locator()->loc(), manager()->current(), label);
 }
 
-Expression *ASTBuilder::NewContinueStatement(Expression *label)
+Handle<Expression> ASTBuilder::NewContinueStatement(Handle<Expression> label)
 {
-    return factory()->NewContinueStatement(locator()->loc(), label);
+    return factory()->NewContinueStatement(locator()->loc(), manager()->current(), label);
 }
 
-Expression *ASTBuilder::NewLabelledStatement(std::string label, Expression *expr)
+Handle<Expression> ASTBuilder::NewLabelledStatement(std::string label, Handle<Expression> expr)
 {
-    return factory()->NewLabelledStatement(locator()->loc(), label, expr);
+    return factory()->NewLabelledStatement(locator()->loc(), manager()->current(), label, expr);
 }
 
-Expression *ASTBuilder::NewCaseClauseStatement(Expression *clause,
-    Expression *stmt)
+Handle<Expression> ASTBuilder::NewCaseClauseStatement(Handle<Expression> clause,
+    Handle<Expression> stmt)
 {
-    return factory()->NewCaseClauseStatement(locator()->loc(), clause, stmt);
+    return factory()->NewCaseClauseStatement(locator()->loc(), manager()->current(), clause, stmt);
 }
 
-ClausesList *ASTBuilder::NewClausesList()
+Handle<ClausesList> ASTBuilder::NewClausesList()
 {
     return factory()->NewClausesList();
 }
 
-Expression *ASTBuilder::NewSwitchStatement(Expression *expr,
-    ClausesList *clauses)
+Handle<Expression> ASTBuilder::NewSwitchStatement(Handle<Expression> expr,
+    Handle<ClausesList> clauses)
 {
-    return factory()->NewSwitchStatement(locator()->loc(), expr, clauses);
+    return factory()->NewSwitchStatement(locator()->loc(), manager()->current(), expr, clauses);
 }
 
-Expression *ASTBuilder::NewThrowStatement(Expression *expr)
+Handle<Expression> ASTBuilder::NewThrowStatement(Handle<Expression> expr)
 {
-    return factory()->NewThrowStatement(locator()->loc(), expr);
+    return factory()->NewThrowStatement(locator()->loc(), manager()->current(), expr);
 }
 
 }

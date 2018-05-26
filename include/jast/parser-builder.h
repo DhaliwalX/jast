@@ -7,6 +7,7 @@
 #include "jast/astfactory.h"
 #include "jast/source-locator.h"
 #include "jast/token.h"
+#include "jast/scope.h"
 
 namespace jast {
 
@@ -19,12 +20,13 @@ public:
         lex_{ std::make_unique<Tokenizer>(stream_.get()) },
         locator_{ std::make_unique<SourceLocator>(lex_.get()) },
         factory_{ ASTFactory::GetFactoryInstance() },
-        builder_{ std::make_unique<ASTBuilder>(context_.get(), factory_, locator_.get()) },
-        parser_{ std::make_unique<Parser>(context_.get(), builder_.get(), lex_.get()) },
+        manager_{ std::make_unique<ScopeManager>(context_.get()) },
+        builder_{ std::make_unique<ASTBuilder>(context_.get(), factory_, locator_.get(), manager_.get()) },
+        parser_{ std::make_unique<Parser>(context_.get(), builder_.get(), lex_.get(), manager_.get()) },
         filename_{ filename }
     { }
 
-    Parser *parser() {
+    Parser *Build() {
         return parser_.get();
     }
 
@@ -34,6 +36,7 @@ private:
     std::unique_ptr<Tokenizer> lex_;
     std::unique_ptr<SourceLocator> locator_;
     ASTFactory* factory_;
+    std::unique_ptr<ScopeManager> manager_;
     std::unique_ptr<ASTBuilder> builder_;
     std::unique_ptr<Parser> parser_;
     std::string filename_;

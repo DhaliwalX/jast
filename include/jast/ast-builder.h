@@ -5,6 +5,7 @@
 #include "jast/source-locator.h"
 #include "jast/context.h"
 #include "jast/expression.h"
+#include "jast/scope.h"
 
 namespace jast {
 
@@ -13,142 +14,144 @@ namespace jast {
 // shorter AST
 class ASTBuilder {
 public:
-    ASTBuilder(ParserContext *ctx, ASTFactory *factory, SourceLocator *locator)
-        : factory_{ factory }, locator_{ locator }, ctx_{ ctx }
+    ASTBuilder(ParserContext *ctx, ASTFactory *factory,
+            SourceLocator *locator, ScopeManager *manager)
+        : factory_{ factory }, locator_{ locator }, ctx_{ ctx }, manager_{manager}
     { }
 
     // creates a heap allocated expression list and return a pointer to it.
     // Helpful for expression which requires list of expression
-    ExpressionList *NewExpressionList();
+    Handle<ExpressionList> NewExpressionList();
 
     // create a new node representing JavaScript 'null'
-    Expression *NewNullLiteral();
+    Handle<Expression> NewNullLiteral();
 
     // create a new node representing undefined
-    Expression *NewUndefinedLiteral();
+    Handle<Expression> NewUndefinedLiteral();
 
     // create a new node representing JavaScript 'this'
-    Expression *NewThisHolder();
+    Handle<Expression> NewThisHolder();
 
     // create a new node representing JavaScript number, for our purposes
     // double suffices our need
-    Expression *NewIntegralLiteral(double value);
+    Handle<Expression> NewIntegralLiteral(double value);
 
     // create a new node representing JavaScript string
-    Expression *NewStringLiteral(const std::string &str);
+    Handle<Expression> NewStringLiteral(const std::string &str);
 
-    Expression *NewTemplateLiteral(const std::string &str);
+    Handle<Expression> NewTemplateLiteral(const std::string &str);
 
-    Expression *NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags);
+    Handle<Expression> NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags);
 
     // create a new node representing JavaScript array
     // after passing `arr` to this function, your arr becomes unusable 
-    Expression *NewArrayLiteral(ProxyArray arr);
+    Handle<Expression> NewArrayLiteral(ProxyArray arr);
 
     // create a new node representing JavaScript object
-    Expression *NewObjectLiteral(ProxyObject obj);
+    Handle<Expression> NewObjectLiteral(ProxyObject obj);
 
     // create a new node representing JavaScript Identifier
-    Expression *NewIdentifier(std::string name);
+    Handle<Expression> NewIdentifier(std::string name);
 
     // create a new node representing JavaScript boolean
-    Expression *NewBooleanLiteral(bool value);
+    Handle<Expression> NewBooleanLiteral(bool value);
 
     // create a new node representing JavaScript argument list
-    Expression *NewArgumentList(ExpressionList *arg);
+    Handle<Expression> NewArgumentList(Handle<ExpressionList> arg);
 
     // create a new node representing JavaScript member call
-    Expression *NewCallExpression(MemberAccessKind kind, Expression *func,
-        Expression *args);
+    Handle<Expression> NewCallExpression(MemberAccessKind kind, Handle<Expression> func,
+        Handle<Expression> args);
 
     // create a new node representing JavaScript member expression
-    Expression *NewMemberExpression(MemberAccessKind kind, Expression *expr,
-        Expression *args);
+    Handle<Expression> NewMemberExpression(MemberAccessKind kind, Handle<Expression> expr,
+        Handle<Expression> args);
 
     // create a new node representing JavaScript `new` expression
-    Expression *NewNewExpression(Expression *expr);
+    Handle<Expression> NewNewExpression(Handle<Expression> expr);
 
     // create a new node representing JavaScript prefix operation
-    Expression *NewPrefixExpression(PrefixOperation op, Expression *expr);
+    Handle<Expression> NewPrefixExpression(PrefixOperation op, Handle<Expression> expr);
 
     // create a new node representing JavaScript postfix operation
-    Expression *NewPostfixExpression(PostfixOperation op, Expression *expr);
+    Handle<Expression> NewPostfixExpression(PostfixOperation op, Handle<Expression> expr);
 
     // create a new node representing JavaScript binary expression
-    Expression *NewBinaryExpression(BinaryOperation op, Expression *lhs,
-        Expression *rhs);
+    Handle<Expression> NewBinaryExpression(BinaryOperation op, Handle<Expression> lhs,
+        Handle<Expression> rhs);
 
     // create a new node representing JavaScript assign expression
-    Expression *NewAssignExpression(Expression *lhs, Expression *rhs);
+    Handle<Expression> NewAssignExpression(Handle<Expression> lhs, Handle<Expression> rhs);
 
     // create a new node representing JavaScript ternary expression
-    Expression *NewTernaryExpression(Expression *first, Expression *second,
-        Expression *third);
+    Handle<Expression> NewTernaryExpression(Handle<Expression> first, Handle<Expression> second,
+        Handle<Expression> third);
 
     // create a new node representing JavaScript Comma Expression
-    Expression *NewCommaExpression(ExpressionList *list);
+    Handle<Expression> NewCommaExpression(Handle<ExpressionList> list);
 
     // create a new node representing JavaScript block statement
-    Expression *NewBlockStatement(ExpressionList *stmts);
+    Handle<Expression> NewBlockStatement(Handle<ExpressionList> stmts);
     // create a new node representing JavaScript for loop
-    Expression *NewForStatement(ForKind kind, Expression *init, Expression *cond,
-        Expression *update, Expression *body);
+    Handle<Expression> NewForStatement(ForKind kind, Handle<Expression> init, Handle<Expression> cond,
+        Handle<Expression> update, Handle<Expression> body);
 
     // create a new node representing JavaScript while loop
-    Expression *NewWhileStatement(Expression *condition, Expression *body);
+    Handle<Expression> NewWhileStatement(Handle<Expression> condition, Handle<Expression> body);
 
     // create a new node representing JavaScript do - while loop
-    Expression *NewDoWhileStatement(Expression *condition, Expression *body);
+    Handle<Expression> NewDoWhileStatement(Handle<Expression> condition, Handle<Expression> body);
 
     // create a new node representing JavaScript FunctionPrototype
-    Expression *NewFunctionPrototype(std::string name,
+    Handle<Expression> NewFunctionPrototype(std::string name,
         std::vector<std::string> args);
 
     // create a new node representing JavaScript function statement
     // and fuunction expression
-    Expression *NewFunctionStatement(FunctionPrototype *proto, Expression *body);
+    Handle<Expression> NewFunctionStatement(Handle<FunctionPrototype> proto, Handle<Expression> body);
 
     // create a new node representing JavaScript if statement
-    Expression *NewIfStatement(Expression *condition, Expression *then);
+    Handle<Expression> NewIfStatement(Handle<Expression> condition, Handle<Expression> then);
 
     // create a new node representing JavaScript if else statement
-    Expression *NewIfElseStatement(Expression *cond, Expression *then,
-        Expression *els);
+    Handle<Expression> NewIfElseStatement(Handle<Expression> cond, Handle<Expression> then,
+        Handle<Expression> els);
 
     // create a new node representing JavaScript return statement
-    Expression *NewReturnStatement(Expression *ret);
+    Handle<Expression> NewReturnStatement(Handle<Expression> ret);
 
     // create a new node representing JavaScript try-catch
-    Expression *NewTryCatchStatement(Expression *try_block,
-        Expression *catch_expr, Expression *catch_block, Expression *finally);
+    Handle<Expression> NewTryCatchStatement(Handle<Expression> try_block,
+        Handle<Expression> catch_expr, Handle<Expression> catch_block, Handle<Expression> finally);
 
     // create a new node representing JavaScript break statement
-    Expression *NewBreakStatement(Expression *label = nullptr);
+    Handle<Expression> NewBreakStatement(Handle<Expression> label = nullptr);
 
     // create a new node representing JavaScript continue statement
-    Expression *NewContinueStatement(Expression *label = nullptr);
+    Handle<Expression> NewContinueStatement(Handle<Expression> label = nullptr);
 
     // create a new node representing JavaScript label statement
-    Expression *NewLabelledStatement(std::string label, Expression *expr);
+    Handle<Expression> NewLabelledStatement(std::string label, Handle<Expression> expr);
 
     // create a new node representing JavaScript case clause
-    Expression *NewCaseClauseStatement(Expression *clause, Expression *stmt);
+    Handle<Expression> NewCaseClauseStatement(Handle<Expression> clause, Handle<Expression> stmt);
 
     // create a JavaScript case list
-    ClausesList *NewClausesList();
+    Handle<ClausesList> NewClausesList();
 
     // create a new node representing switch statement
-    Expression *NewSwitchStatement(Expression *expr, ClausesList *clauses);
+    Handle<Expression> NewSwitchStatement(Handle<Expression> expr, Handle<ClausesList> clauses);
 
     // create a new node representing throw statement
-    Expression *NewThrowStatement(Expression *expr);
+    Handle<Expression> NewThrowStatement(Handle<Expression> expr);
     ASTFactory *factory() { return factory_; }
     SourceLocator *locator() { return locator_; }
-
+    ScopeManager *manager() { return manager_; }
 private:
     ASTFactory *factory_;
     SourceLocator *locator_;
     ParserContext *ctx_;
+    ScopeManager *manager_;
 };
 
 }

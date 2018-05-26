@@ -8,8 +8,8 @@ int main()
     using namespace jast;
 
     ParserBuilder builder(std::cin, "STDIN");
-    Parser *parser = builder.parser();
-    Expression *ast = nullptr;
+    Parser *parser = builder.Build();
+    Handle<Expression> ast;
 
     try {
         ast = ParseProgram(parser);
@@ -20,8 +20,7 @@ int main()
     std::cout << "Parsed correctly" << std::endl;
 
     printer::DumpAST p(std::cout, 1);
-    ast->Accept(&p);
-
-    delete ast;
+    // ast->Accept(&p);
+\
     return 0;
 }

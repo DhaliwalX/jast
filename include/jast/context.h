@@ -3,11 +3,19 @@
 
 namespace jast {
 
+class Scope;
+class ParserContextImpl;
+
 // class to store complete context of parser independant of
 // actual interpreter.
 class ParserContext {
 public:
-    ParserContext() { }
+    ParserContext();
+    ~ParserContext();
+
+    Scope *GetGlobalScope();
+private:
+    ParserContextImpl *impl_;
 };
 
 }

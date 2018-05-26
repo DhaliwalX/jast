@@ -13,245 +13,245 @@ ASTFactory *ASTFactory::GetFactoryInstance()
     return factory_instance.get();
 }
 
-ExpressionList* ASTFactory::NewExpressionList()
+Handle<ExpressionList> ASTFactory::NewExpressionList()
 {
-    return new ExpressionList();
+    return std::make_shared<ExpressionList>();
 }
 
-Expression* ASTFactory::NewNullLiteral(Position &loc)
+Handle<Expression> ASTFactory::NewNullLiteral(Position &loc, Scope *scope)
 {
-    return new NullLiteral(loc);
+    return std::make_shared<NullLiteral>(loc, scope);
 }
 
-Expression* ASTFactory::NewUndefinedLiteral(Position &loc)
+Handle<Expression> ASTFactory::NewUndefinedLiteral(Position &loc, Scope *scope)
 {
-    return new UndefinedLiteral(loc);
+    return std::make_shared<UndefinedLiteral>(loc, scope);
 }
 
-Expression* ASTFactory::NewThisHolder(Position &loc)
+Handle<Expression> ASTFactory::NewThisHolder(Position &loc, Scope *scope)
 {
-    return new ThisHolder(loc);
+    return std::make_shared<ThisHolder>(loc, scope);
 }
 
-Expression* ASTFactory::NewIntegralLiteral(Position &loc,
+Handle<Expression> ASTFactory::NewIntegralLiteral(Position &loc, Scope *scope,
     double value)
 {
-    return new IntegralLiteral(loc, value);
+    return std::make_shared<IntegralLiteral>(loc, scope, value);
 }
 
-Expression* ASTFactory::NewStringLiteral(Position &loc,
+Handle<Expression> ASTFactory::NewStringLiteral(Position &loc, Scope *scope,
     std::string str)
 {
-    return new StringLiteral(loc, str);
+    return std::make_shared<StringLiteral>(loc, scope, str);
 }
 
-Expression* ASTFactory::NewRegExpLiteral(Position &loc,
+Handle<Expression> ASTFactory::NewRegExpLiteral(Position &loc, Scope *scope,
     std::string str, const std::vector<RegExpFlags> &flags)
 {
-    return new RegExpLiteral(loc, str, flags);
+    return std::make_shared<RegExpLiteral>(loc, scope, str, flags);
 }
 
-Expression* ASTFactory::NewTemplateLiteral(Position &loc,
+Handle<Expression> ASTFactory::NewTemplateLiteral(Position &loc, Scope *scope,
     std::string str)
 {
-    return new TemplateLiteral(loc, str);
+    return std::make_shared<TemplateLiteral>(loc, scope, str);
 }
 
-Expression* ASTFactory::NewArrayLiteral(Position &loc, ProxyArray arr)
+Handle<Expression> ASTFactory::NewArrayLiteral(Position &loc, Scope *scope, ProxyArray arr)
 {
-    return new ArrayLiteral(loc, std::move(arr));
+    return std::make_shared<ArrayLiteral>(loc, scope, std::move(arr));
 }
 
-Expression* ASTFactory::NewObjectLiteral(Position &loc,
+Handle<Expression> ASTFactory::NewObjectLiteral(Position &loc, Scope *scope,
     ProxyObject obj)
 {
-    return new ObjectLiteral(loc, std::move(obj));
+    return std::make_shared<ObjectLiteral>(loc, scope, std::move(obj));
 }
 
-Expression* ASTFactory::NewIdentifier(Position &loc, std::string name)
+Handle<Expression> ASTFactory::NewIdentifier(Position &loc, Scope *scope, std::string name)
 {
-    return new Identifier(loc, name);
+    return std::make_shared<Identifier>(loc, scope, name);
 }
 
-Expression* ASTFactory::NewBooleanLiteral(Position &loc, bool val)
+Handle<Expression> ASTFactory::NewBooleanLiteral(Position &loc, Scope *scope, bool val)
 {
-    return new BooleanLiteral(loc, val);
+    return std::make_shared<BooleanLiteral>(loc, scope, val);
 }
 
-Expression* ASTFactory::NewArgumentList(Position &loc, ExpressionList* args)
+Handle<Expression> ASTFactory::NewArgumentList(Position &loc, Scope *scope, Handle<ExpressionList> args)
 {
-    return new ArgumentList(loc, std::move(args));
+    return std::make_shared<ArgumentList>(loc, scope, std::move(args));
 }
 
-Expression* ASTFactory::NewCallExpression(Position &loc,
-    MemberAccessKind kind, Expression *func, Expression *args)
+Handle<Expression> ASTFactory::NewCallExpression(Position &loc, Scope *scope,
+    MemberAccessKind kind, Handle<Expression> func, Handle<Expression> args)
 {
-    return new CallExpression(loc, kind, func, args);
+    return std::make_shared<CallExpression>(loc, scope, kind, func, args);
 }
 
-Expression *ASTFactory::NewMemberExpression(Position &loc,
-    MemberAccessKind kind, Expression *expr, Expression *mem)
+Handle<Expression> ASTFactory::NewMemberExpression(Position &loc, Scope *scope,
+    MemberAccessKind kind, Handle<Expression> expr, Handle<Expression> mem)
 {
-    return new MemberExpression(loc, kind, expr, mem);
+    return std::make_shared<MemberExpression>(loc, scope, kind, expr, mem);
 }
 
-Expression *ASTFactory::NewNewExpression(Position &loc, Expression *expr)
+Handle<Expression> ASTFactory::NewNewExpression(Position &loc, Scope *scope, Handle<Expression> expr)
 {
-    return new NewExpression(loc, expr);
+    return std::make_shared<NewExpression>(loc, scope, expr);
 }
 
-Expression *ASTFactory::NewPrefixExpression(Position &loc,
-    PrefixOperation op, Expression *expr)
+Handle<Expression> ASTFactory::NewPrefixExpression(Position &loc, Scope *scope,
+    PrefixOperation op, Handle<Expression> expr)
 {
-    return new PrefixExpression(loc, op, expr);
+    return std::make_shared<PrefixExpression>(loc, scope, op, expr);
 }
 
-Expression *ASTFactory::NewPostfixExpression(Position &loc,
-    PostfixOperation op, Expression *expr)
+Handle<Expression> ASTFactory::NewPostfixExpression(Position &loc, Scope *scope,
+    PostfixOperation op, Handle<Expression> expr)
 {
-    return new PostfixExpression(loc, op, expr);
+    return std::make_shared<PostfixExpression>(loc, scope, op, expr);
 }
 
-Expression *ASTFactory::NewBinaryExpression(Position &loc,
-    BinaryOperation op, Expression *lhs, Expression *rhs)
+Handle<Expression> ASTFactory::NewBinaryExpression(Position &loc, Scope *scope,
+    BinaryOperation op, Handle<Expression> lhs, Handle<Expression> rhs)
 {
-    return new BinaryExpression(loc, op, lhs, rhs);
+    return std::make_shared<BinaryExpression>(loc, scope, op, lhs, rhs);
 }
 
-Expression *ASTFactory::NewAssignExpression(Position &loc,
-    Expression *lhs, Expression *rhs)
+Handle<Expression> ASTFactory::NewAssignExpression(Position &loc, Scope *scope,
+    Handle<Expression> lhs, Handle<Expression> rhs)
 {
-    return new AssignExpression(loc, lhs, rhs);
+    return std::make_shared<AssignExpression>(loc, scope, lhs, rhs);
 }
 
-Expression *ASTFactory::NewTernaryExpression(Position &loc,
-    Expression *first, Expression *second, Expression *third)
+Handle<Expression> ASTFactory::NewTernaryExpression(Position &loc, Scope *scope,
+    Handle<Expression> first, Handle<Expression> second, Handle<Expression> third)
 {
-    return new TernaryExpression(loc, first, second, third);
+    return std::make_shared<TernaryExpression>(loc, scope, first, second, third);
 }
 
-Expression *ASTFactory::NewCommaExpression(Position &loc,
-    ExpressionList *l)
+Handle<Expression> ASTFactory::NewCommaExpression(Position &loc, Scope *scope,
+    Handle<ExpressionList> l)
 {
-    return new CommaExpression(loc, l);
+    return std::make_shared<CommaExpression>(loc, scope, l);
 }
 
-Declaration *ASTFactory::NewDeclaration(Position &loc, std::string name,
-    Expression *init)
+Handle<Declaration> ASTFactory::NewDeclaration(Position &loc, Scope *scope, std::string name,
+    Handle<Expression> init)
 {
-    return new Declaration(loc, name, init);
+    return std::make_shared<Declaration>(loc, scope, name, init);
 }
 
-Expression *ASTFactory::NewDeclarationList(Position &loc,
-    std::vector<std::unique_ptr<Declaration>> decls)
+Handle<Expression> ASTFactory::NewDeclarationList(Position &loc, Scope *scope,
+    std::vector<Handle<Declaration>> decls)
 {
-    return new DeclarationList(loc, std::move(decls));
+    return std::make_shared<DeclarationList>(loc, scope, std::move(decls));
 }
 
-Expression *ASTFactory::NewDeclarationList(Position &loc)
+Handle<Expression> ASTFactory::NewDeclarationList(Position &loc, Scope *scope)
 {
-    return new DeclarationList(loc, {});
+    return std::make_shared<DeclarationList>(loc, scope);
 }
 
-Expression *ASTFactory::NewBlockStatement(Position &loc,
-                                            ExpressionList *list)
+Handle<Expression> ASTFactory::NewBlockStatement(Position &loc, Scope *scope,
+                                            Handle<ExpressionList> list)
 {
-    return new BlockStatement(loc, list);
+    return std::make_shared<BlockStatement>(loc, scope, list);
 }
 
-Expression *ASTFactory::NewForStatement(Position &loc, ForKind kind,
-        Expression *init, Expression *condition, Expression *update,
-        Expression *body)
+Handle<Expression> ASTFactory::NewForStatement(Position &loc, Scope *scope, ForKind kind,
+        Handle<Expression> init, Handle<Expression> condition, Handle<Expression> update,
+        Handle<Expression> body)
 {
-    return new ForStatement(loc, kind, init, condition, update, body);
+    return std::make_shared<ForStatement>(loc, scope, kind, init, condition, update, body);
 }
 
-Expression *ASTFactory::NewWhileStatement(Position &loc,
-    Expression *condition, Expression *body)
+Handle<Expression> ASTFactory::NewWhileStatement(Position &loc, Scope *scope,
+    Handle<Expression> condition, Handle<Expression> body)
 {
-    return new WhileStatement(loc, condition, body);
+    return std::make_shared<WhileStatement>(loc, scope, condition, body);
 }
 
-Expression *ASTFactory::NewDoWhileStatement(Position &loc,
-    Expression *condition, Expression *body)
+Handle<Expression> ASTFactory::NewDoWhileStatement(Position &loc, Scope *scope,
+    Handle<Expression> condition, Handle<Expression> body)
 {
-    return new DoWhileStatement(loc, condition, body);
+    return std::make_shared<DoWhileStatement>(loc, scope, condition, body);
 }
 
-Expression *ASTFactory::NewFunctionPrototype(Position &loc,
+Handle<Expression> ASTFactory::NewFunctionPrototype(Position &loc, Scope *scope,
     std::string name, std::vector<std::string> args)
 {
-    return new FunctionPrototype(loc, name, std::move(args));
+    return std::make_shared<FunctionPrototype>(loc, scope, name, std::move(args));
 }
 
-Expression *ASTFactory::NewFunctionStatement(Position &loc,
-    FunctionPrototype *proto, Expression *body)
+Handle<Expression> ASTFactory::NewFunctionStatement(Position &loc, Scope *scope,
+    Handle<FunctionPrototype> proto, Handle<Expression> body)
 {
-    return new FunctionStatement(loc, proto, body);
+    return std::make_shared<FunctionStatement>(loc, scope, proto, body);
 }
 
-Expression *ASTFactory::NewIfStatement(Position &loc,
-    Expression *condition, Expression *then)
+Handle<Expression> ASTFactory::NewIfStatement(Position &loc, Scope *scope,
+    Handle<Expression> condition, Handle<Expression> then)
 {
-    return new IfStatement(loc, condition, then);
+    return std::make_shared<IfStatement>(loc, scope, condition, then);
 }
 
-Expression *ASTFactory::NewIfElseStatement(Position &loc,
-    Expression *condition, Expression *then, Expression *els)
+Handle<Expression> ASTFactory::NewIfElseStatement(Position &loc, Scope *scope,
+    Handle<Expression> condition, Handle<Expression> then, Handle<Expression> els)
 {
-    return new IfElseStatement(loc, condition, then, els);
+    return std::make_shared<IfElseStatement>(loc, scope, condition, then, els);
 }
 
-Expression *ASTFactory::NewReturnStatement(Position &loc,
-    Expression *expr)
+Handle<Expression> ASTFactory::NewReturnStatement(Position &loc, Scope *scope,
+    Handle<Expression> expr)
 {
-    return new ReturnStatement(loc, expr);
+    return std::make_shared<ReturnStatement>(loc, scope, expr);
 }
 
-Expression *ASTFactory::NewTryCatchStatement(Position &loc, Expression *tb,
-        Expression *catch_expr, Expression *catch_block, Expression *finally)
+Handle<Expression> ASTFactory::NewTryCatchStatement(Position &loc, Scope *scope, Handle<Expression> tb,
+        Handle<Expression> catch_expr, Handle<Expression> catch_block, Handle<Expression> finally)
 {
-    return new TryCatchStatement(loc, tb, catch_expr, catch_block, finally);
+    return std::make_shared<TryCatchStatement>(loc, scope, tb, catch_expr, catch_block, finally);
 }
 
-Expression *ASTFactory::NewBreakStatement(Position &loc, Expression *label)
+Handle<Expression> ASTFactory::NewBreakStatement(Position &loc, Scope *scope, Handle<Expression> label)
 {
-    return new BreakStatement(loc, label);
+    return std::make_shared<BreakStatement>(loc, scope, label);
 }
 
-Expression *ASTFactory::NewContinueStatement(Position &loc,
-    Expression *label)
+Handle<Expression> ASTFactory::NewContinueStatement(Position &loc, Scope *scope,
+    Handle<Expression> label)
 {
-    return new ContinueStatement(loc, label);
+    return std::make_shared<ContinueStatement>(loc, scope, label);
 }
 
-Expression *ASTFactory::NewLabelledStatement(Position &loc,
-    std::string label, Expression *stmt)
+Handle<Expression> ASTFactory::NewLabelledStatement(Position &loc, Scope *scope,
+    std::string label, Handle<Expression> stmt)
 {
-    return new LabelledStatement(loc, label, stmt);
+    return std::make_shared<LabelledStatement>(loc, scope, label, stmt);
 }
 
-Expression *ASTFactory::NewCaseClauseStatement(Position &loc,
-        Expression *clause, Expression *stmt)
+Handle<Expression> ASTFactory::NewCaseClauseStatement(Position &loc, Scope *scope,
+        Handle<Expression> clause, Handle<Expression> stmt)
 {
-    return new CaseClauseStatement(loc, clause, stmt);
+    return std::make_shared<CaseClauseStatement>(loc, scope, clause, stmt);
 }
 
-ClausesList *ASTFactory::NewClausesList()
+Handle<ClausesList> ASTFactory::NewClausesList()
 {
-    return new ClausesList();
+    return std::make_shared<ClausesList>();
 }
 
-Expression *ASTFactory::NewSwitchStatement(Position &loc,
-        Expression *expr, ClausesList *clauses)
+Handle<Expression> ASTFactory::NewSwitchStatement(Position &loc, Scope *scope,
+        Handle<Expression> expr, Handle<ClausesList> clauses)
 {
-    return new SwitchStatement(loc, expr, clauses);
+    return std::make_shared<SwitchStatement>(loc, scope, expr, clauses);
 }
 
-Expression *ASTFactory::NewThrowStatement(Position &loc,
-    Expression *expr)
+Handle<Expression> ASTFactory::NewThrowStatement(Position &loc, Scope *scope,
+    Handle<Expression> expr)
 {
-    return new ThrowStatement(loc, expr);
+    return std::make_shared<ThrowStatement>(loc, scope, expr);
 }
 
 }

@@ -5,6 +5,8 @@
 #include "jast/string-builder.h"
 #include "jast/tokens.h"
 #include "jast/token.h"
+#include "jast/handle.h"
+#include "jast/scope.h"
 
 #include <vector>
 namespace jast {
@@ -18,70 +20,70 @@ class FunctionPrototype;
 // A recursive descent parser plus operator precedance parser for JavaScript
 class Parser {
 public:
-    Parser(ParserContext *ctx, ASTBuilder *builder, Tokenizer *lex)
-        : ctx_{ ctx }, builder_{ builder }, lex_{ lex }
-    { }
+    friend class NewScope;
+    
+    Parser(ParserContext *ctx, ASTBuilder *builder, Tokenizer *lex, ScopeManager *manager);
 
     ~Parser();
 
-    Expression *ParsePrimary();
+    Handle<Expression> ParsePrimary();
 
-    Expression *ParseArrayLiteral();
-    Expression *ParseObjectLiteral();
+    Handle<Expression> ParseArrayLiteral();
+    Handle<Expression> ParseObjectLiteral();
 
-    Expression *ParseDotExpression();
-    Expression *ParseIndexExpression();
-    Expression *ParseMemberExpression();
-    Expression *ParseNewExpression();
-    Expression *ParseCallExpression();
-    ExpressionList *ParseArgumentList();
-    Expression *ParseLeftHandSideExpression();
+    Handle<Expression> ParseDotExpression();
+    Handle<Expression> ParseIndexExpression();
+    Handle<Expression> ParseMemberExpression();
+    Handle<Expression> ParseNewExpression();
+    Handle<Expression> ParseCallExpression();
+    Handle<ExpressionList> ParseArgumentList();
+    Handle<Expression> ParseLeftHandSideExpression();
 
-    Expression *ParsePostfixExpression();
-    Expression *ParseUnaryExpression();
+    Handle<Expression> ParsePostfixExpression();
+    Handle<Expression> ParseUnaryExpression();
 
-    Expression *ParseBinaryExpression();
-    Expression *ParseBinaryExpressionRhs(int precedance, Expression *lhs);
-    Expression *ParseTernaryExpression();
-    Expression *ParseAssignExpression();
-    Expression *ParseCommaExpression();
+    Handle<Expression> ParseBinaryExpression();
+    Handle<Expression> ParseBinaryExpressionRhs(int precedance, Handle<Expression> lhs);
+    Handle<Expression> ParseTernaryExpression();
+    Handle<Expression> ParseAssignExpression();
+    Handle<Expression> ParseCommaExpression();
 
-    Expression *ParseStatement();
-    Expression *ParseBlockStatement();
-    Expression *ParseVariableStatement();
-    Expression *ParseIfStatement();
-    Expression *ParseElseBranch();
-    Expression *ParseContinueStatement();
-    Expression *ParseBreakStatement();
-    Expression *ParseReturnStatement();
-    // Expression *ParseWithStatement();
-    // Expression *ParseLabelledStatement();
-    Expression *ParseSwitchStatement();
-    Expression *ParseThrowStatement();
-    Expression *ParseTryCatchStatement();
-    // Expression *ParseDebuggerStatement();
+    Handle<Expression> ParseStatement();
+    Handle<Expression> ParseBlockStatement();
+    Handle<Expression> ParseVariableStatement();
+    Handle<Expression> ParseIfStatement();
+    Handle<Expression> ParseElseBranch();
+    Handle<Expression> ParseContinueStatement();
+    Handle<Expression> ParseBreakStatement();
+    Handle<Expression> ParseReturnStatement();
+    // Handle<Expression> ParseWithStatement();
+    // Handle<Expression> ParseLabelledStatement();
+    Handle<Expression> ParseSwitchStatement();
+    Handle<Expression> ParseThrowStatement();
+    Handle<Expression> ParseTryCatchStatement();
+    // Handle<Expression> ParseDebuggerStatement();
 
-    Expression *ParseForStatement();
-    Expression *ParseWhileStatement();
-    Expression *ParseDoWhileStatement();
+    Handle<Expression> ParseForStatement();
+    Handle<Expression> ParseWhileStatement();
+    Handle<Expression> ParseDoWhileStatement();
 
-    Expression *ParseFunctionStatement();
+    Handle<Expression> ParseFunctionStatement();
     std::vector<std::string> ParseParameterList();
-    FunctionPrototype *ParseFunctionPrototype();
+    Handle<FunctionPrototype> ParseFunctionPrototype();
 
-    Expression *ParseCaseBlock();
-    Expression *ParseDefaultClause();
+    Handle<Expression> ParseCaseBlock();
+    Handle<Expression> ParseDefaultClause();
 
-    Expression *ParseExpression();
-    Expression *ParseExpressionOptional();
+    Handle<Expression> ParseExpression();
+    Handle<Expression> ParseExpressionOptional();
 
-    Declaration *ParseDeclaration();
+    Handle<Declaration> ParseDeclaration();
 
-    Expression *ParseProgram();
+    Handle<Expression> ParseProgram();
 
-    Expression *ParseForInStatement(Expression *inexpr);
+    Handle<Expression> ParseForInStatement(Handle<Expression> inexpr);
 
-    Expression *ParseVariableOrExpressionOptional();
+    Handle<Expression> ParseVariableOrExpressionOptional();
 
 private:
     String GetStringLiteral();
@@ -94,13 +96,15 @@ private:
     ASTBuilder* builder() { return builder_; }
     Tokenizer* lex() { return lex_; }
     ParserContext *context() { return ctx_; }
+    ScopeManager *scope_manager() { return manager_; }
 private:
     ParserContext *ctx_;
     ASTBuilder *builder_;
     Tokenizer *lex_;
+    ScopeManager *manager_;
 };
 
-extern Expression *ParseProgram(Parser *parser);
+extern Handle<Expression> ParseProgram(Parser *parser);
 
 }
 

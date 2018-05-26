@@ -14,116 +14,116 @@ public:
     // GetFactoryInstance ::= returns singleton instance of ASTFactory
     static ASTFactory *GetFactoryInstance();
 
-    virtual ExpressionList* NewExpressionList();
+    virtual Handle<ExpressionList> NewExpressionList();
 
-    virtual Expression* NewNullLiteral(Position &loc);
+    virtual Handle<Expression> NewNullLiteral(Position &loc, Scope *scope);
 
-    virtual Expression* NewUndefinedLiteral(Position &loc);
+    virtual Handle<Expression> NewUndefinedLiteral(Position &loc, Scope *scope);
 
-    virtual Expression* NewThisHolder(Position &loc);
+    virtual Handle<Expression> NewThisHolder(Position &loc, Scope *scope);
 
-    virtual Expression* NewIntegralLiteral(Position &loc, double value);
+    virtual Handle<Expression> NewIntegralLiteral(Position &loc, Scope *scope, double value);
 
-    virtual Expression* NewStringLiteral(Position &loc, std::string str);
+    virtual Handle<Expression> NewStringLiteral(Position &loc, Scope *scope, std::string str);
 
-    virtual Expression* NewRegExpLiteral(Position &loc, std::string str,
+    virtual Handle<Expression> NewRegExpLiteral(Position &loc, Scope *scope, std::string str,
         const std::vector<RegExpFlags> &flags);
 
-    virtual Expression* NewTemplateLiteral(Position &loc, std::string str);
+    virtual Handle<Expression> NewTemplateLiteral(Position &loc, Scope *scope, std::string str);
 
-    virtual Expression* NewArrayLiteral(Position &loc, ProxyArray arr);
+    virtual Handle<Expression> NewArrayLiteral(Position &loc, Scope *scope, ProxyArray arr);
 
-    virtual Expression* NewObjectLiteral(Position &loc, ProxyObject obj);
+    virtual Handle<Expression> NewObjectLiteral(Position &loc, Scope *scope, ProxyObject obj);
 
-    virtual Expression* NewIdentifier(Position &loc, std::string name);
+    virtual Handle<Expression> NewIdentifier(Position &loc, Scope *scope, std::string name);
 
-    virtual Expression* NewBooleanLiteral(Position &loc, bool val);
+    virtual Handle<Expression> NewBooleanLiteral(Position &loc, Scope *scope, bool val);
     
-    virtual Expression* NewArgumentList(Position &loc, ExpressionList *);
+    virtual Handle<Expression> NewArgumentList(Position &loc, Scope *scope, Handle<ExpressionList>);
     
-    virtual Expression* NewCallExpression(Position &loc, MemberAccessKind kind,
-                                    Expression *func, Expression *args);
+    virtual Handle<Expression> NewCallExpression(Position &loc, Scope *scope, MemberAccessKind kind,
+                                    Handle<Expression> func, Handle<Expression> args);
 
-    virtual Expression *NewMemberExpression(Position &loc, MemberAccessKind kind, 
-        Expression *expr, Expression *mem);
+    virtual Handle<Expression> NewMemberExpression(Position &loc, Scope *scope, MemberAccessKind kind, 
+        Handle<Expression> expr, Handle<Expression> mem);
 
-    virtual Expression *NewNewExpression(Position &loc,
-                                    Expression *expr);
+    virtual Handle<Expression> NewNewExpression(Position &loc, Scope *scope,
+                                    Handle<Expression> expr);
     
-    virtual Expression *NewPrefixExpression(Position &loc,
-                                    PrefixOperation op, Expression *expr);
+    virtual Handle<Expression> NewPrefixExpression(Position &loc, Scope *scope,
+                                    PrefixOperation op, Handle<Expression> expr);
     
-    virtual Expression *NewPostfixExpression(Position &loc,
-                                    PostfixOperation op, Expression *expr);
+    virtual Handle<Expression> NewPostfixExpression(Position &loc, Scope *scope,
+                                    PostfixOperation op, Handle<Expression> expr);
     
-    virtual Expression *NewBinaryExpression(Position &loc,
-                    BinaryOperation op, Expression *lhs, Expression *rhs);
+    virtual Handle<Expression> NewBinaryExpression(Position &loc, Scope *scope,
+                    BinaryOperation op, Handle<Expression> lhs, Handle<Expression> rhs);
     
-    virtual Expression *NewAssignExpression(Position &loc,
-                                    Expression *lhs, Expression *rhs);
+    virtual Handle<Expression> NewAssignExpression(Position &loc, Scope *scope,
+                                    Handle<Expression> lhs, Handle<Expression> rhs);
     
-    virtual Expression *NewTernaryExpression(Position &loc,
-        Expression *first, Expression *second, Expression *third);
+    virtual Handle<Expression> NewTernaryExpression(Position &loc, Scope *scope,
+        Handle<Expression> first, Handle<Expression> second, Handle<Expression> third);
     
-    virtual Expression *NewCommaExpression(Position &loc, ExpressionList *l);
+    virtual Handle<Expression> NewCommaExpression(Position &loc, Scope *scope, Handle<ExpressionList> l);
     
-    virtual Declaration *NewDeclaration(Position &loc, std::string name,
-                                Expression *init = nullptr);
+    virtual Handle<Declaration> NewDeclaration(Position &loc, Scope *scope, std::string name,
+                                Handle<Expression> init = nullptr);
     
-    virtual Expression *NewDeclarationList(Position &loc,
-        std::vector<std::unique_ptr<Declaration>> decls);
+    virtual Handle<Expression> NewDeclarationList(Position &loc, Scope *scope,
+        std::vector<Handle<Declaration>> decls);
     
-    virtual Expression *NewDeclarationList(Position &loc);
+    virtual Handle<Expression> NewDeclarationList(Position &loc, Scope *scope);
 
-    virtual Expression *NewBlockStatement(Position &loc,
-                                            ExpressionList *list);
+    virtual Handle<Expression> NewBlockStatement(Position &loc, Scope *scope,
+                                            Handle<ExpressionList> list);
     
-    virtual Expression *NewForStatement(Position &loc, ForKind kind,
-            Expression *init, Expression *condition, Expression *update,
-            Expression *body);
+    virtual Handle<Expression> NewForStatement(Position &loc, Scope *scope, ForKind kind,
+            Handle<Expression> init, Handle<Expression> condition, Handle<Expression> update,
+            Handle<Expression> body);
     
-    virtual Expression *NewWhileStatement(Position &loc,
-        Expression *condition, Expression *body);
+    virtual Handle<Expression> NewWhileStatement(Position &loc, Scope *scope,
+        Handle<Expression> condition, Handle<Expression> body);
     
-    virtual Expression *NewDoWhileStatement(Position &loc,
-        Expression *condition, Expression *body);
+    virtual Handle<Expression> NewDoWhileStatement(Position &loc, Scope *scope,
+        Handle<Expression> condition, Handle<Expression> body);
     
-    virtual Expression *NewFunctionPrototype(Position &loc,
+    virtual Handle<Expression> NewFunctionPrototype(Position &loc, Scope *scope,
         std::string name, std::vector<std::string> args);
     
-    virtual Expression *NewFunctionStatement(Position &loc,
-        FunctionPrototype *proto, Expression *body);
+    virtual Handle<Expression> NewFunctionStatement(Position &loc, Scope *scope,
+        Handle<FunctionPrototype> proto, Handle<Expression> body);
     
-    virtual Expression *NewIfStatement(Position &loc,
-        Expression *condition, Expression *then);
+    virtual Handle<Expression> NewIfStatement(Position &loc, Scope *scope,
+        Handle<Expression> condition, Handle<Expression> then);
     
-    virtual Expression *NewIfElseStatement(Position &loc,
-        Expression *condition, Expression *then, Expression *els);
+    virtual Handle<Expression> NewIfElseStatement(Position &loc, Scope *scope,
+        Handle<Expression> condition, Handle<Expression> then, Handle<Expression> els);
     
-    virtual Expression *NewReturnStatement(Position &loc,
-        Expression *expr);
+    virtual Handle<Expression> NewReturnStatement(Position &loc, Scope *scope,
+        Handle<Expression> expr);
     
-    virtual Expression *NewTryCatchStatement(Position &loc, Expression *tb,
-        Expression *catch_expr, Expression *catch_block, Expression *finally);
+    virtual Handle<Expression> NewTryCatchStatement(Position &loc, Scope *scope, Handle<Expression> tb,
+        Handle<Expression> catch_expr, Handle<Expression> catch_block, Handle<Expression> finally);
 
-    virtual Expression *NewBreakStatement(Position &loc,
-            Expression *label = nullptr);
+    virtual Handle<Expression> NewBreakStatement(Position &loc, Scope *scope,
+            Handle<Expression> label = nullptr);
 
-    virtual Expression *NewContinueStatement(Position &loc,
-            Expression *label = nullptr);
+    virtual Handle<Expression> NewContinueStatement(Position &loc, Scope *scope,
+            Handle<Expression> label = nullptr);
 
-    virtual Expression *NewLabelledStatement(Position &loc, std::string label,
-            Expression *expr);
+    virtual Handle<Expression> NewLabelledStatement(Position &loc, Scope *scope, std::string label,
+            Handle<Expression> expr);
 
-    virtual Expression *NewCaseClauseStatement(Position &loc, Expression *clause,
-            Expression *stmt);
+    virtual Handle<Expression> NewCaseClauseStatement(Position &loc, Scope *scope, Handle<Expression> clause,
+            Handle<Expression> stmt);
 
-    virtual ClausesList *NewClausesList();
+    virtual Handle<ClausesList> NewClausesList();
 
-    virtual Expression *NewSwitchStatement(Position &loc, Expression *expr,
-            ClausesList *clauses);
+    virtual Handle<Expression> NewSwitchStatement(Position &loc, Scope *scope, Handle<Expression> expr,
+            Handle<ClausesList> clauses);
 
-    virtual Expression *NewThrowStatement(Position &loc, Expression *expr);
+    virtual Handle<Expression> NewThrowStatement(Position &loc, Scope *scope, Handle<Expression> expr);
 };
 
 }

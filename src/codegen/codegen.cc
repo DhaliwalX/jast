@@ -1,5 +1,7 @@
 #include "codegen/codegen.h"
 
+#include "codegen/SymbolTable.h"
+
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -17,6 +19,7 @@
 #include "llvm/Transforms/InstCombine/InstCombine.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Scalar/GVN.h"
+#include <llvm/ExecutionEngine/ExecutionEngine.h>
 
 #include <iostream>
 
@@ -24,11 +27,57 @@ namespace jast {
 
 static llvm::LLVMContext context_;
 
+llvm::LLVMContext &getGlobalContext() {
+    return context_;
+}
+
 class CodeGeneratorInternal {
 public:
     CodeGeneratorInternal()
-    : builder_(context_)
-    {}
+    : builder_(context_),
+      target_machine_(llvm::EngineBuilder().selectTarget()),
+      data_layout_(target_machine_->createDataLayout()),
+      module_(nullptr)
+    {
+        module_ = std::make_unique<llvm::Module>("anon_module", context());
+        module_->setDataLayout(getTargetMachine().createDataLayout());
+
+        AddInitFunction();
+                // create a pass manager attached to it.
+        fpm_ = llvm::make_unique<llvm::legacy::FunctionPassManager>(module_.get());
+
+        // do simple peephole optimizations
+        fpm_->doInitialization();
+    }
+
+    void AddInitFunction() {
+        using namespace llvm;
+
+        FunctionType *funcType = FunctionType::get(Type::getVoidTy(context()), false);
+        Function *function = Function::Create(funcType, Function::ExternalLinkage,
+                                "__init__", module_.get());
+
+        BasicBlock *bb = BasicBlock::Create(context(), "entry", function);
+        builder().SetInsertPoint(bb);
+
+        // Add print function to the module
+        std::vector<Type *> Doubles(1, Type::getDoubleTy(getGlobalContext()));
+        FunctionType *FT =
+          FunctionType::get(Type::getVoidTy(getGlobalContext()), Doubles, false);
+
+        Function *F =
+          Function::Create(FT, Function::ExternalLinkage, "print", module_.get());
+
+        AddSymbol("print", F);
+    }
+
+    llvm::TargetMachine &getTargetMachine() {
+        return *target_machine_;
+    }
+
+    const llvm::DataLayout &getDataLayout() const {
+        return data_layout_;
+    }
 
     llvm::IRBuilder<> &builder() {
         return builder_;
@@ -37,24 +86,125 @@ public:
     llvm::LLVMContext &context() {
         return context_;
     }
+
+    llvm::Module *ReleaseModule() {
+        return module_.release();
+    }
+
+    llvm::Value *GetSymbol(const std::string &name) {
+        if (table_.count(name)) {
+            return table_[name];
+        } else {
+            return nullptr;
+        }
+    }
+
+    void AddSymbol(const std::string &name, llvm::Value *val) {
+        table_[name] = val;
+    }
+
+    std::vector<llvm::Value*> &stack() {
+        return stack_;
+    }
 private:
     llvm::IRBuilder<> builder_;
+    std::unique_ptr<llvm::TargetMachine> target_machine_;
+    const llvm::DataLayout data_layout_;
+    std::unique_ptr<llvm::Module> module_;
+    SymbolTable table_;
+    std::unique_ptr<llvm::legacy::FunctionPassManager> fpm_;
+
+    std::vector<llvm::Value*> stack_;
 };
 
 CodeGenerator::CodeGenerator()
 : internal_{ new CodeGeneratorInternal() }
 { }
 
+llvm::TargetMachine &CodeGenerator::getTargetMachine() {
+    return internal_->getTargetMachine();
+}
+
+std::unique_ptr<llvm::Module> CodeGenerator::ReleaseModule() {
+    return std::unique_ptr<llvm::Module>(internal_->ReleaseModule());
+}
+
+llvm::LLVMContext &CodeGenerator::getLLVMContext() {
+    return internal_->context();
+}
+
 void CodeGenerator::Visit(IntegralLiteral *literal) {
     std::cout << "Generating code for " << literal->value() << std::endl;
 
-    llvm::Value *v = llvm::ConstantInt::get(internal_->context(), llvm::APInt(32, literal->value(), true));
-    v->dump();
+    llvm::Value *v = llvm::ConstantFP::get(internal_->context(),
+                        llvm::APFloat(literal->value()));
+    internal_->stack().push_back(v);
 }
 
 void CodeGenerator::Visit(BlockStatement *statement) {
     for (auto &expr : *statement->statements()) {
         expr->Accept(this);
+    }
+}
+
+// XXX: FixMe: Identifier can also appear on RHS
+void CodeGenerator::Visit(Identifier *identifier) {
+    llvm::Value *val = internal_->GetSymbol(identifier->GetName());
+
+    if (val == nullptr) {
+        val = internal_->builder().CreateAlloca(
+                        llvm::Type::getFloatTy(internal_->context()),
+                        nullptr,
+                        identifier->GetName()
+                        );
+        internal_->AddSymbol(identifier->GetName(), val);
+    }
+    internal_->stack().push_back(val);
+}
+
+void CodeGenerator::Visit(AssignExpression *expression) {
+    expression->rhs()->Accept(this);
+    expression->lhs()->Accept(this);
+
+    auto lhs = internal_->stack().back();
+    internal_->stack().pop_back();
+
+    auto rhs = internal_->stack().back();
+    internal_->stack().pop_back();
+
+    internal_->builder().CreateStore(rhs, lhs);
+}
+
+void CodeGenerator::Visit(ArgumentList *list) {
+    for (auto &expr : *list->args()) {
+        expr->Accept(this);
+        llvm::Value *val = internal_->stack().back();
+        internal_->stack().pop_back();
+        internal_->stack().push_back(val);
+    }
+}
+
+void CodeGenerator::Visit(MemberExpression *expression) {
+    expression->member()->Accept(this);
+    expression->expr()->Accept(this);
+
+    llvm::Value* expr = internal_->stack().back();
+    internal_->stack().pop_back();
+
+    llvm::Value* member = internal_->stack().back();
+    internal_->stack().pop_back();
+
+    if (expression->kind() == MemberAccessKind::kCall) {
+        std::vector<llvm::Value*> args;
+        args.push_back(member);
+
+        if (auto *F = llvm::dyn_cast<llvm::Function>(expr)) {
+            internal_->builder().CreateCall(F, args);
+        } else {
+            std::cout << "Not a function" << std::endl;
+
+        }
+
     }
 }
 

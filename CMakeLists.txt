@@ -52,3 +52,6 @@ llvm_map_components_to_libnames(llvm_libs support core irreader mcjit native)
 add_library(jast_codegen STATIC ${JAST_CODEGEN_FILES})
 target_link_libraries(jast_codegen ${llvm_libs})
 
+
+add_executable(cg ${CMAKE_CURRENT_SOURCE_DIR}/samples/codegen.cc)
+target_link_libraries(cg jast jast_codegen ${llvm_libs})

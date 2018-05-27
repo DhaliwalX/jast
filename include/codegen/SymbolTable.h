@@ -5,9 +5,13 @@
 
 namespace jast {
 
+namespace codegen {
+
 // TODO: FixMe should be valid for every data type
 
 using SymbolTable = std::map<std::string, llvm::Value*>;
+
+}
 
 }
 

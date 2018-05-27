@@ -18,8 +18,8 @@ int main()
     CodeGenerator::Initialize();
 
     ParserBuilder builder(std::cin, "STDIN");
-    Parser *parser = builder.parser();
-    Expression *ast = nullptr;
+    Parser *parser = builder.Build();
+    Handle<Expression> ast;
 
     try {
         ast = ParseProgram(parser);
@@ -47,6 +47,5 @@ int main()
     } else {
         func();
     }
-    delete ast;
     return 0;
 }

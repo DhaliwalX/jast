@@ -32,6 +32,8 @@ llvm::LLVMContext &getGlobalContext() {
 }
 
 class CodeGeneratorInternal {
+    friend class LoadEnvironment;
+    friend class CodeGenerator;
 public:
     CodeGeneratorInternal()
     : builder_(context_),
@@ -59,9 +61,13 @@ public:
 
         BasicBlock *bb = BasicBlock::Create(context(), "entry", function);
         builder().SetInsertPoint(bb);
+        builder().CreateRetVoid();
+        builder().SetInsertPoint(&*(bb->getFirstInsertionPt()));
 
         // Add print function to the module
-        std::vector<Type *> Doubles(1, Type::getDoubleTy(getGlobalContext()));
+        Type *charType = (Type::getDoubleTy(getGlobalContext()));
+        std::vector<Type *> Doubles(1, charType);
+        // Doubles.push_back(Type::getInt32Ty(getGlobalContext()));
         FunctionType *FT =
           FunctionType::get(Type::getVoidTy(getGlobalContext()), Doubles, false);
 
@@ -106,15 +112,38 @@ public:
     std::vector<llvm::Value*> &stack() {
         return stack_;
     }
+
+protected:
+    void SetLoad(bool val) {
+        load_ = val;
+    }
 private:
     llvm::IRBuilder<> builder_;
     std::unique_ptr<llvm::TargetMachine> target_machine_;
     const llvm::DataLayout data_layout_;
     std::unique_ptr<llvm::Module> module_;
-    SymbolTable table_;
+    std::map<std::string, llvm::Value*> table_;
     std::unique_ptr<llvm::legacy::FunctionPassManager> fpm_;
 
     std::vector<llvm::Value*> stack_;
+
+    bool load_;
+};
+
+class LoadEnvironment {
+public:
+    LoadEnvironment(CodeGeneratorInternal *internal)
+    : internal_{internal}
+    {
+        internal_->SetLoad(true);
+    }
+
+    ~LoadEnvironment() {
+        internal_->SetLoad(false);
+    }
+
+private:
+    CodeGeneratorInternal *internal_;
 };
 
 CodeGenerator::CodeGenerator()
@@ -134,10 +163,7 @@ llvm::LLVMContext &CodeGenerator::getLLVMContext() {
 }
 
 void CodeGenerator::Visit(IntegralLiteral *literal) {
-    std::cout << "Generating code for " << literal->value() << std::endl;
-
-    llvm::Value *v = llvm::ConstantFP::get(internal_->context(),
-                        llvm::APFloat(literal->value()));
+    llvm::Value *v = llvm::ConstantFP::get(internal_->context(), llvm::APFloat(literal->value()));
     internal_->stack().push_back(v);
 }
 
@@ -153,11 +179,15 @@ void CodeGenerator::Visit(Identifier *identifier) {
 
     if (val == nullptr) {
         val = internal_->builder().CreateAlloca(
-                        llvm::Type::getFloatTy(internal_->context()),
+                        llvm::Type::getDoubleTy(internal_->context()),
                         nullptr,
                         identifier->GetName()
                         );
         internal_->AddSymbol(identifier->GetName(), val);
+    }
+
+    if (internal_->load_) {
+        val = internal_->builder().CreateLoad(val);
     }
     internal_->stack().push_back(val);
 }
@@ -185,7 +215,10 @@ void CodeGenerator::Visit(ArgumentList *list) {
 }
 
 void CodeGenerator::Visit(MemberExpression *expression) {
-    expression->member()->Accept(this);
+    {
+        LoadEnvironment env(this->internal_);
+        expression->member()->Accept(this);
+    }
     expression->expr()->Accept(this);
 
     llvm::Value* expr = internal_->stack().back();

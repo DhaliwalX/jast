@@ -474,6 +474,28 @@ Token Tokenizer::parseRegex(bool *ok) {
             return Token(std::string("ERROR"), TokenType::ERROR, position, seek);
         }
 
+        if (ch == '[') {
+            buffer.push_back(ch);
+            ch = _ readchar();
+            while (ch != ']') {
+
+                if (ch == '\\') {
+                    buffer.push_back(ch);
+                    ch = _ readchar();
+                }
+
+                if (ch == EOF) {
+                    return Token(std::string("ERROR"), TokenType::ERROR, position, seek);
+                }
+
+                buffer.push_back(ch);
+                ch = _ readchar();
+            }
+
+            if (ch == ']')
+                buffer.push_back(ch);
+        }
+
         if (ch == '\\') {
             buffer.push_back(ch);
             ch = _ readchar();
@@ -481,6 +503,7 @@ Token Tokenizer::parseRegex(bool *ok) {
 
         buffer.push_back(ch);
         ch = _ readchar();
+
     }
 
     // adding end marker

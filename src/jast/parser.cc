@@ -664,7 +664,14 @@ Handle<Expression> Parser::ParseForStatement()
             return ParseForInStatement(init);
         }
     }
-    EXPECT(SEMICOLON);
+
+    if (init && !init->IsDeclarationList()) {
+        EXPECT(SEMICOLON);
+    }
+
+    if (!init) {
+        EXPECT(SEMICOLON);
+    }
 
     Handle<Expression> condition;
     if (peek() == SEMICOLON) {
@@ -892,9 +899,10 @@ Handle<Expression> Parser::ParseVariableStatement()
         decl_list.push_back(Handle<Declaration>(ParseDeclaration()));
 
         auto tok = peek();
-        if (tok == SEMICOLON)
+        if (tok == SEMICOLON) {
+            advance();
             break;
-        else if (tok != COMMA)
+        } else if (tok != COMMA)
             throw SyntaxError(lex()->currentToken(), "expected a ',' or ';'");
         advance(); // eat ','
     }
@@ -963,6 +971,7 @@ Handle<Expression> Parser::ParseSwitchStatement()
         } else if (peek() != RBRACE) {
             throw SyntaxError(lex()->currentToken(), "expected a '}'");
         } else {
+            advance();
             break;
         }
     }

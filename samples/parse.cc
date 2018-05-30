@@ -20,7 +20,6 @@ int main()
     std::cout << "Parsed correctly" << std::endl;
 
     printer::DumpAST p(std::cout, 1);
-    // ast->Accept(&p);
-\
+    ast->Accept(&p);
     return 0;
 }

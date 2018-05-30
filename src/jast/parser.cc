@@ -34,6 +34,24 @@ private:
     Parser *parser_;
 };
 
+class ForInLoopParsingEnvironment {
+public:
+    ForInLoopParsingEnvironment(Parser *parser)
+        : parser_{ parser }, prev_flags_{ parser->flags_ }
+    {
+        parser_->flags_.SetForInLoopParsing(true);
+    }
+
+    ~ForInLoopParsingEnvironment()
+    {
+        parser_->flags_ = prev_flags_;
+    }
+
+private:
+    Parser *parser_;
+    ParserFlags prev_flags_;
+};
+
 bool IsAssign(TokenType tok)
 {
     return tok >= ASSIGN && tok <= ASSIGN_MOD;
@@ -222,7 +240,7 @@ Handle<Expression> Parser::ParseDotExpression()
     auto name = GetIdentifierName();
 
     auto ident = builder()->NewIdentifier(name);
-    advance();
+    advance(true);
     return ident;
 }
 
@@ -234,7 +252,7 @@ Handle<Expression> Parser::ParseIndexExpression()
     if (lex()->peek() != RBRACK)
         throw SyntaxError(lex()->currentToken(), "expected a ']'");
 
-    advance(); // consumex ']'
+    advance(true); // consumex ']'
     return expr;
 }
 
@@ -301,7 +319,7 @@ Handle<ExpressionList> Parser::ParseArgumentList()
 
     tok = peek();
     if (tok == RPAREN) {
-        advance();
+        advance(true);
         return { };
     }
 
@@ -317,7 +335,7 @@ Handle<ExpressionList> Parser::ParseArgumentList()
         advance();
     }
 
-    advance(); // eat the last ')'
+    advance(true); // eat the last ')'
     return exprs;    
 }
 
@@ -656,8 +674,24 @@ Handle<Expression> Parser::ParseForStatement()
     EXPECT(LPAREN);
 
     // parse 'for ( >>this<< ;...' part
+    ForInLoopParsingEnvironment env(this);
     auto init = ParseVariableOrExpressionOptional();
 
+    if (peek() == IN) {
+        advance();
+        auto expr = ParseAssignExpression();
+        /* this is bit wrong as ast for this kind of syntax will be like
+         *
+         *          in
+         *         /  \
+         *        /     \ 
+         * DeclList     expr
+         *
+         * We need to simplify the ast to simple `a in x` expression
+         */
+        init = builder()->NewBinaryExpression(BinaryOperation::kIn, init, expr);
+        return ParseForInStatement(init);
+    }
     if (init && init->IsBinaryExpression()) {
         auto op = init->AsBinaryExpression()->op();
         if (op == BinaryOperation::kIn) {
@@ -870,7 +904,7 @@ Handle<Declaration> Parser::ParseDeclaration()
     advance();
 
     tok = peek();
-    if (tok == SEMICOLON || tok == COMMA) {
+    if (tok == SEMICOLON || tok == COMMA || (flags_.IsForInLoopParsing() && tok == IN)) {
         return builder()->factory()->NewDeclaration(
             builder()->locator()->loc(), scope_manager()->current(), name);
     } else if (tok != ASSIGN) {
@@ -901,6 +935,8 @@ Handle<Expression> Parser::ParseVariableStatement()
         auto tok = peek();
         if (tok == SEMICOLON) {
             advance();
+            break;
+        } else if (tok == IN) {
             break;
         } else if (tok != COMMA)
             throw SyntaxError(lex()->currentToken(), "expected a ',' or ';'");

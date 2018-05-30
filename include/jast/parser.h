@@ -17,10 +17,32 @@ class Declaration;
 class ExpressionList;
 class FunctionPrototype;
 
+
+// ParserFlags := represents various parsing flags
+class ParserFlags {
+public:
+    enum Flags {
+        kNonRegex = 1 << 1,
+        kAutomaticSemicolonInsertion = 1 << 2,
+        kForInLoopParsing = 1 << 3,
+    };
+
+    bool IsForInLoopParsing() { return flags_ & Flags::kForInLoopParsing; }
+    void SetForInLoopParsing(bool flag) {
+        flag ? flags_ |= Flags::kForInLoopParsing : flags_ ^= Flags::kForInLoopParsing;
+    }
+
+private:
+    // flags are packed inside 64 bit unsigned integer
+    uint64_t flags_;
+};
+
 // A recursive descent parser plus operator precedance parser for JavaScript
 class Parser {
 public:
     friend class NewScope;
+    friend class NonRegexEnvironment;
+    friend class ForInLoopParsingEnvironment;
     
     Parser(ParserContext *ctx, ASTBuilder *builder, Tokenizer *lex, ScopeManager *manager);
 
@@ -97,11 +119,13 @@ private:
     Tokenizer* lex() { return lex_; }
     ParserContext *context() { return ctx_; }
     ScopeManager *scope_manager() { return manager_; }
+
 private:
     ParserContext *ctx_;
     ASTBuilder *builder_;
     Tokenizer *lex_;
     ScopeManager *manager_;
+    ParserFlags flags_;
 };
 
 extern Handle<Expression> ParseProgram(Parser *parser);

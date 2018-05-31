@@ -21,5 +21,7 @@ int main()
 
     printer::DumpAST p(std::cout, 1);
     ast->Accept(&p);
+
+    builder.context()->Counters().dump();
     return 0;
 }

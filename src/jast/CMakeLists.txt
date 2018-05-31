@@ -12,6 +12,7 @@ set(JAST_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/token.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scope.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/statistics.cc
     ${JAST_SOURCE_FILES}
     PARENT_SCOPE
 )

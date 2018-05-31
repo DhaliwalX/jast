@@ -17,7 +17,7 @@ public:
     :
         context_{ std::make_unique<ParserContext>() },
         stream_{ std::make_unique<StandardCharacterStream>(is) },
-        lex_{ std::make_unique<Tokenizer>(stream_.get()) },
+        lex_{ std::make_unique<Tokenizer>(stream_.get(), context_.get()) },
         locator_{ std::make_unique<SourceLocator>(lex_.get()) },
         factory_{ ASTFactory::GetFactoryInstance() },
         manager_{ std::make_unique<ScopeManager>(context_.get()) },
@@ -29,6 +29,8 @@ public:
     Parser *Build() {
         return parser_.get();
     }
+
+    ParserContext *context() { return context_.get(); }
 
 private:
     std::unique_ptr<ParserContext> context_;

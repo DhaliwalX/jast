@@ -24,13 +24,14 @@ public:
     using seek_type = size_t;
     using char_type = char;
 
-    TokenizerState(CharacterStream *scanner)
-    : seek_{ 0 }, scanner_{ scanner }
+    TokenizerState(CharacterStream *scanner, ParserContext *context)
+    : seek_{ 0 }, scanner_{ scanner }, context_{ context }
     { }
 
     TokenizerState(const TokenizerState &state) = default;
     TokenizerState(TokenizerState &&state) = default;
 
+    inline ParserContext *context() { return context_; }
     inline void reset(CharacterStream *scanner) {
         scanner_ = scanner;
         seek_ = 0;
@@ -70,9 +71,11 @@ public:
 
     inline char_type readchar() {
         char ch = scanner_->readchar();
+        context()->Counters().InputCharacter()++;
         if (ch == '\n') {
             position_.row()++;
 
+            context()->Counters().Line()++;
             // save the last column position
             last_col_length_ = position_.col();
             position_.col() = 0;
@@ -97,11 +100,13 @@ public:
             // FIXME: we can only go back to last line correctly
             position_.col() = last_col_length_;
             position_.row()--;
+            context()->Counters().Line()--;
         } else {
             assert(position_.col() != 0);
             position_.col()--;
         }
         scanner_->putback(ch);
+        context()->Counters().InputCharacter()++;
     }
 
 private:
@@ -113,6 +118,7 @@ private:
     Position position_;
     size_t last_col_length_;
     CharacterStream *scanner_;
+    ParserContext *context_;
 };
 
 std::unordered_map<std::string, TokenType> TokenizerState::keywords = {
@@ -277,8 +283,8 @@ bool IsSpace(char ch) {
 // Tokenizer implementation
 // --------------------------
 
-Tokenizer::Tokenizer(CharacterStream *stream)
-    : state_{ new TokenizerState(stream) }
+Tokenizer::Tokenizer(CharacterStream *stream, ParserContext *context)
+    : state_{ new TokenizerState(stream, context) }, context_{ context }
 { }
 
 Tokenizer::~Tokenizer()
@@ -294,6 +300,7 @@ void Tokenizer::reset(CharacterStream *stream) {
 
 void Tokenizer::advance(bool divide_expected) {
     _ setToken(advance_internal(divide_expected));
+    context()->Counters().Token()++;
 }
 
 TokenType Tokenizer::peek() {

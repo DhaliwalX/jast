@@ -1,6 +1,8 @@
 #ifndef CONTEXT_H_
 #define CONTEXT_H_
 
+#include "jast/statistics.h"
+
 namespace jast {
 
 class Scope;
@@ -14,8 +16,11 @@ public:
     ~ParserContext();
 
     Scope *GetGlobalScope();
+
+    Statistics &Counters();
 private:
     ParserContextImpl *impl_;
+    Statistics statistics_;
 };
 
 }

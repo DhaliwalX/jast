@@ -29,4 +29,8 @@ Scope *ParserContext::GetGlobalScope() {
     return impl_->global_scope();
 }
 
+Statistics &ParserContext::Counters() {
+    return statistics_;
+}
+
 }

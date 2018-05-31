@@ -10,7 +10,7 @@ int main()
 
     ParserBuilder builder(std::cin, "STDIN");
     Parser *parser = builder.parser();
-    Expression *ast = nullptr;
+    Handle<Expression> ast = nullptr;
 
     try {
         ast = ParseProgram(parser);
@@ -23,6 +23,5 @@ int main()
     CodeGenerator codegen;
     ast->Accept(&codegen);
 
-    delete ast;
     return 0;
 }

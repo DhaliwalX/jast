@@ -4,6 +4,7 @@
 #include "jast/tokens.h"
 #include "jast/token.h"
 #include "jast/scanner.h"
+#include "jast/context.h"
 
 namespace jast {
 
@@ -14,7 +15,7 @@ class TokenizerState;
  */
 class Tokenizer {
 public:
-    Tokenizer(CharacterStream *stream);
+    Tokenizer(CharacterStream *stream, ParserContext *context);
     ~Tokenizer();
     TokenType peek();
 
@@ -24,6 +25,8 @@ public:
 
     Token &currentToken();
 
+    ParserContext *context() { return context_; }
+
 private:
     Token advance_internal(bool not_regex);
     Token parseString(char delim);
@@ -31,6 +34,7 @@ private:
     Token parseRegex(bool *ok);
 
     TokenizerState *state_;
+    ParserContext *context_;
 };
 
 } // jast

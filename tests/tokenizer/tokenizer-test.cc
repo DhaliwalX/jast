@@ -11,8 +11,9 @@ using namespace jast;
 
 #define INIT(s)  \
     std::istringstream str(s);   \
+    ParserContext context; \
     Scanner scanner = Scanner(str); \
-    Tokenizer tokenizer(&scanner)
+    Tokenizer tokenizer(&scanner, &context)
 
 #define TOKENIZER_TEST(str, expected, eq) \
 do {    \
@@ -223,23 +224,26 @@ TEST_F(TokenizerTest, RegexTest1) {
 TEST_F(TokenizerTest, RegexTest2) {
     std::istringstream stream("/(?:^|\\s)\\/\\/(.+?)$/gm");
     Scanner scanner(stream);
-    Tokenizer tokenizer(&scanner);
+    ParserContext context;
+    Tokenizer tokenizer(&scanner, &context);
 
     ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
 }
 
 TEST_F(TokenizerTest, RegexTest3) {
     std::istringstream stream("/\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}/");
+    ParserContext context;
     Scanner scanner(stream);
-    Tokenizer tokenizer(&scanner);
+    Tokenizer tokenizer(&scanner, &context);
 
     ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
 }
 
 TEST_F(TokenizerTest, RegexTest4) {
     std::istringstream stream("/prince/");
+    ParserContext context;
     Scanner scanner(stream);
-    Tokenizer tokenizer(&scanner);
+    Tokenizer tokenizer(&scanner, &context);
 
     ASSERT_EQ(tokenizer.peek(), TokenType::REGEX);
 }

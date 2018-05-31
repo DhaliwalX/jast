@@ -14,12 +14,14 @@ set(JAST_HEADER_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/source-locator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source.h
     ${CMAKE_CURRENT_SOURCE_DIR}/statement.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/statistics.h
     ${CMAKE_CURRENT_SOURCE_DIR}/string-builder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/string-view.h
     ${CMAKE_CURRENT_SOURCE_DIR}/token.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tokenizer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tokens.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tokens.inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils.h
     ${JAST_HEADER_FILES}
     PARENT_SCOPE
 )

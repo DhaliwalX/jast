@@ -50,6 +50,7 @@ public:
 
     Handle<Expression> ParsePrimary();
 
+    Handle<Expression> ParseObjectMethod(const std::string &name);
     Handle<Expression> ParseArrayLiteral();
     Handle<Expression> ParseObjectLiteral();
 
@@ -93,7 +94,7 @@ public:
     std::vector<std::string> ParseParameterList();
     Handle<FunctionPrototype> ParseFunctionPrototype();
 
-    Handle<Expression> ParseCaseBlock();
+    Handle<ExpressionList> ParseCaseBlock();
     Handle<Expression> ParseDefaultClause();
 
     Handle<Expression> ParseExpression();

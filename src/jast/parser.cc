@@ -121,6 +121,14 @@ Handle<Expression> Parser::ParseArrayLiteral()
     return builder()->NewArrayLiteral(exprs);
 }
 
+Handle<Expression> Parser::ParseObjectMethod(const std::string &name)
+{
+    auto args = ParseParameterList();
+    auto body = ParseBlockStatement();
+    auto proto = builder()->NewFunctionPrototype(name, args);
+    return builder()->NewFunctionStatement(proto->AsFunctionPrototype(), body);
+}
+
 Handle<Expression> Parser::ParseObjectLiteral()
 {
     ProxyObject proxy;
@@ -148,10 +156,23 @@ Handle<Expression> Parser::ParseObjectLiteral()
         }
 
         advance();
-        EXPECT(COLON);
-        prop = ParseAssignExpression();
-        proxy[name] = Handle<Expression>(prop);
 
+        if (peek() == COLON) {
+            advance();
+            prop = ParseAssignExpression();
+        }
+        else if (peek() == LPAREN) {
+            prop = ParseObjectMethod(name);
+        } else 
+        // TODO: create a getter list in the ProxyObject class that will keep track of getters
+        // and setters
+        if (peek() == IDENTIFIER && (name == "get" || name == "set")) {
+            name = lex()->currentToken().view();
+            advance();
+            prop = ParseObjectMethod(name);
+        }
+
+        proxy[name] = Handle<Expression>(prop);
         // next token should be a ',' or '}'
         tok = peek();
         if (tok == RBRACE)
@@ -947,7 +968,7 @@ Handle<Expression> Parser::ParseVariableStatement()
             builder()->locator()->loc(), scope_manager()->current(), decl_list);
 }
 
-Handle<Expression> Parser::ParseCaseBlock()
+Handle<ExpressionList> Parser::ParseCaseBlock()
 {
     advance();
 
@@ -955,14 +976,30 @@ Handle<Expression> Parser::ParseCaseBlock()
     Handle<Expression> clause = ParseAssignExpression();
     EXPECT(COLON);
 
+    Handle<ExpressionList> cases = builder()->NewExpressionList();
     Handle<ExpressionList> list = builder()->NewExpressionList();
 
+    cases->Insert(clause);
     do {
+        auto tok = peek();
+        if (tok == CASE) {
+            advance();
+            clause = ParseAssignExpression();
+            cases->Insert(clause);
+            EXPECT(COLON);
+            continue;
+        }
         Handle<Expression> stmt = ParseStatement();
         list->Insert(stmt);
     } while (peek() != CASE && peek() != DEFAULT && peek() != RBRACE);
 
-    return builder()->NewCaseClauseStatement(clause, builder()->NewBlockStatement(list));
+    Handle<ExpressionList> clauses = builder()->NewExpressionList();
+
+    auto block = builder()->NewBlockStatement(list);
+    for (auto &c : cases->raw_list()) {
+        clauses->Insert(builder()->NewCaseClauseStatement(c, block));
+    }
+    return clauses;
 }
 
 Handle<Expression> Parser::ParseDefaultClause()
@@ -994,8 +1031,11 @@ Handle<Expression> Parser::ParseSwitchStatement()
     while (true) {
         Handle<Expression> temp = nullptr;
         if (peek() == CASE) {
-            temp = ParseCaseBlock();
-            list->PushCase(temp->AsCaseClauseStatement());
+            auto tempList = ParseCaseBlock();
+
+            for (auto &t : tempList->raw_list()) {
+                list->PushCase(t->AsCaseClauseStatement());
+            }
         } else if (peek() == DEFAULT) {
             if (has_default) {
                 throw SyntaxError(lex()->currentToken(),

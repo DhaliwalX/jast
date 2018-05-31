@@ -38,14 +38,14 @@ void DumpAST::Visit(ArrayLiteral *literal)
 {
     ProxyArray &arr = literal->exprs();
 
-    os() << "ArrayLiteral [\n";
+    os() << "ArrayLiteral {\n";
     tab()++;
     for (auto &expr : arr) {
         os_tabbed();
         expr->Accept(this);
     }
     tab()--;
-    os_tabbed() << "]\n";
+    os_tabbed() << "}\n";
 }
 
 void DumpAST::Visit(ObjectLiteral *literal)
@@ -622,6 +622,8 @@ void DumpAST::Visit(SwitchStatement *stmt)
         tab()++;
         os_tabbed();
         stmt->default_clause()->Accept(this);
+        tab()--;
+        os_tabbed() << "}\n";
     }
     tab()--;
     os_tabbed() << "}\n";

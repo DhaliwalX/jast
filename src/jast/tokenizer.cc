@@ -340,11 +340,14 @@ Token Tokenizer::advance_internal(bool not_regex) {
                 ch = _ readchar();
                 char last = ch;
 
-                while (ch != EOF && ch != '/' && last != '*') {
+                while (ch != '/' || last != '*') {
+                    if (ch == EOF)
+                        break;
                     last = ch;
                     ch = _ readchar();
                 }
 
+                ch = _ readchar();
                 if (ch == EOF) {
                     return Token(std::string("ERROR"), TokenType::ERROR,
                         _ position(), _ seek());
@@ -426,7 +429,7 @@ Token Tokenizer::advance_internal(bool not_regex) {
 
 
 
-    if (second != EOF) { 
+    if (second != EOF) {
         type = isTwoCharacterSymbol(first, second);
 
         if (type != INVALID) {

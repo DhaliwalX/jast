@@ -276,7 +276,7 @@ TokenType isThreeCharacterSymbol(char ch1, char ch2, char ch3) {
 }
 
 bool IsSpace(char ch) {
-    return ch == ' ' || ch == '\t' || ch == '\n';
+    return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
 }
 
 

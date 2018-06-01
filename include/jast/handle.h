@@ -9,7 +9,7 @@ template <typename T>
 using Handle = std::shared_ptr<T>;
 
 template <typename T, typename... Args>
-Handle<T> MakeHandle(Args... args) {
+Handle<T> MakeHandle(Args&&... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 

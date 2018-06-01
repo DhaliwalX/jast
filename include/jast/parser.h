@@ -27,6 +27,8 @@ public:
         kForInLoopParsing = 1 << 3,
     };
 
+    ParserFlags() : flags_{ 0 } { }
+
     bool IsForInLoopParsing() { return flags_ & Flags::kForInLoopParsing; }
     void SetForInLoopParsing(bool flag) {
         flag ? flags_ |= Flags::kForInLoopParsing : flags_ ^= Flags::kForInLoopParsing;
@@ -43,7 +45,7 @@ public:
     friend class NewScope;
     friend class NonRegexEnvironment;
     friend class ForInLoopParsingEnvironment;
-    
+
     Parser(ParserContext *ctx, ASTBuilder *builder, Tokenizer *lex, ScopeManager *manager);
 
     ~Parser();

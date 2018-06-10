@@ -8,7 +8,7 @@ namespace jast {
 
 class ParserContext;
 class Expression;
-class SymbolTable;
+class SymT;
 
 class Scope {
 public:
@@ -17,23 +17,23 @@ public:
     Scope(Value *root, Scope *parent);
     ~Scope();
 
-    SymbolTable *symbol_table();
+    SymT *symbol_table();
 
     Scope *parent() { return parent_; }
 
 private:
     // root of tree where scope starts
     Value *root_;
-    SymbolTable *symbol_table_;
+    SymT *symbol_table_;
     Scope *parent_;
 };
 
-class SymbolTable {
+class SymT {
 public:
     using Name = std::string;
     using Value = Expression;
 
-    SymbolTable(Scope *scope);
+    SymT(Scope *scope);
 
     void Push(const Name &name, Value *value);
 
@@ -48,14 +48,14 @@ private:
 };
 
 // ScopeManager manages stack of scope. It keeps a pointer to the current scope
-// and hence current symbolTable.
+// and hence current SymT.
 class ScopeManager {
 public:
     ScopeManager(ParserContext *context);
 
     // NewScope creates a new scope and pushes the current scope to the stack
     // and makes current_ point to new scope
-    Scope *NewScope(SymbolTable::Value *value);
+    Scope *NewScope(SymT::Value *value);
 
     // pops the scope from stack, and current now points to popped scope.
     Scope *PopScope();

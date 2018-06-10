@@ -29,8 +29,8 @@ public: \
     { } \
     virtual ~Type() = default; \
     bool Is##Type() const override { return true; }   \
-    std::shared_ptr<Type> As##Type() override \
-    { return std::dynamic_pointer_cast<Type>(shared_from_this()); }  \
+    Handle<Type> As##Type() override \
+    { return Handle<Type>(dynamic_cast<Type*>(this)); }  \
     ASTNodeType type() const override { return ASTNodeType::k##Type; }  \
     void Accept(ASTVisitor *visitor) override; \
 protected: \
@@ -95,7 +95,7 @@ AST_NODE_LIST(AST_NODE_TYPE)
 
 extern const char *type_as_string[(int)ASTNodeType::kNrType];
 
-class Expression : public std::enable_shared_from_this<Expression> {
+class Expression : public RefCountObject {
 protected:
     Expression(const Position &loc, Scope *scope) :
         loc_{ loc }, scope_{ scope }
@@ -110,7 +110,7 @@ public:
 
 // helper conversion functions
 #define AS_EXPRESSION_FUNCTION(Type)    \
-    virtual std::shared_ptr<Type> As##Type() { assert(0 && "Expression is not " #Type); }
+    virtual Handle<Type> As##Type() { assert(0 && "Expression is not " #Type); }
 AST_NODE_LIST(AS_EXPRESSION_FUNCTION)
 #undef AS_EXPRESSION_FUNCTION
 
@@ -120,6 +120,7 @@ AST_NODE_LIST(AS_EXPRESSION_FUNCTION)
 AST_NODE_LIST(IS_EXPRESSION_FUNCTION)
 #undef IS_EXPRESSION_FUNCTION
 
+    const Position &loc() const { return loc_;}
 private:
     Position loc_;
     Scope *scope_;
@@ -129,7 +130,7 @@ using ProxyArray = std::vector<Handle<Expression>>;
 using ProxyObject = std::map<std::string, Handle<Expression>>;
 
 // ExpressionList ::= helper class representing a list of expressions
-class ExpressionList {
+class ExpressionList : public RefCountObject {
 public:
     using iterator = std::vector<Handle<Expression>>::iterator;
 
@@ -195,7 +196,7 @@ public:
     IntegralLiteral(Position &loc, Scope *scope, double value)
         : Expression(loc, scope), value_(value)
     { }
-    
+
     double value() { return value_; }
     DEFINE_NODE_TYPE(IntegralLiteral);
 };
@@ -272,7 +273,7 @@ class BooleanLiteral : public Expression {
     bool pred_;
 public:
     BooleanLiteral(Position &loc, Scope *scope, bool val)
-        : Expression(loc, scope), pred_(val) { }   
+        : Expression(loc, scope), pred_(val) { }
 
     bool pred() { return pred_; }
     DEFINE_NODE_TYPE(BooleanLiteral);
@@ -412,7 +413,7 @@ public:
     bool ProduceRValue() override { return false; }
     DEFINE_NODE_TYPE(NewExpression);
 private:
-    Handle<Expression> member_; 
+    Handle<Expression> member_;
 };
 
 enum class PrefixOperation {
@@ -451,7 +452,7 @@ public:
     PostfixExpression(Position &loc, Scope *scope, PostfixOperation op, Handle<Expression> expr)
         : Expression(loc, scope), op_{ op }, expr_{ expr }
     { }
-    
+
 
     PostfixOperation op() { return op_; }
     Handle<Expression> expr() { return expr_; }
@@ -565,7 +566,7 @@ private:
 
 class DeclarationList : public Expression {
 public:
-    DeclarationList(Position &loc, Scope *scope, 
+    DeclarationList(Position &loc, Scope *scope,
         std::vector<Handle<Declaration>> exprs)
         : Expression(loc, scope), exprs_{ std::move(exprs) }
     { }

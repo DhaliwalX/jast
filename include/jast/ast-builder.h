@@ -6,6 +6,7 @@
 #include "jast/context.h"
 #include "jast/expression.h"
 #include "jast/scope.h"
+#include <list>
 
 namespace jast {
 
@@ -44,7 +45,7 @@ public:
     Handle<Expression> NewRegExpLiteral(const std::string &str, const std::vector<RegExpFlags> &flags);
 
     // create a new node representing JavaScript array
-    // after passing `arr` to this function, your arr becomes unusable 
+    // after passing `arr` to this function, your arr becomes unusable
     Handle<Expression> NewArrayLiteral(ProxyArray arr);
 
     // create a new node representing JavaScript object
@@ -147,11 +148,18 @@ public:
     ASTFactory *factory() { return factory_; }
     SourceLocator *locator() { return locator_; }
     ScopeManager *manager() { return manager_; }
+
+    template <typename T>
+    inline Handle<Expression> save(Handle<T> handle) {
+        exprs_.push_back(handle);
+        return handle;
+    }
 private:
     ASTFactory *factory_;
     SourceLocator *locator_;
     ParserContext *ctx_;
     ScopeManager *manager_;
+    std::list<Handle<Expression>> exprs_;
 };
 
 }

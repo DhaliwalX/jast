@@ -109,7 +109,7 @@ public:
 private:
     Handle<Expression> expr_;
 };
-  
+
 class TryCatchStatement : public Expression {
 public:
     TryCatchStatement(Position &loc, Scope *scope, Handle<Expression> try_block,
@@ -132,7 +132,7 @@ private:
 };
 
 class LabelledStatement : public Expression {
-public: 
+public:
     LabelledStatement(Position &loc, Scope *scope, std::string &label, Handle<Expression> expr)
         : Expression(loc, scope), label_{ label }, expr_{ expr }
     { }
@@ -165,7 +165,7 @@ private:
 };
 
 // helper class to store all cases under switch statement
-class ClausesList {
+class ClausesList : public RefCountObject {
 public:
     using iterator = std::vector<Handle<CaseClauseStatement>>::iterator;
 
@@ -235,7 +235,7 @@ private:
 };
 
 // FunctionPrototype - captures the prototype of the function
-// which includes the name of the function and 
+// which includes the name of the function and
 class FunctionPrototype : public Expression {
     DEFINE_NODE_TYPE(FunctionPrototype);
 public:
@@ -254,7 +254,7 @@ private:
 class FunctionStatement : public Expression {
     DEFINE_NODE_TYPE(FunctionStatement);
 public:
-    FunctionStatement(Position &loc, Scope *scope, 
+    FunctionStatement(Position &loc, Scope *scope,
         Handle<FunctionPrototype> proto, Handle<Expression> body)
         : Expression(loc, scope), proto_{ (proto) }, body_{ body }
     { }

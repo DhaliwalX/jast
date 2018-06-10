@@ -9,6 +9,7 @@ namespace jast {
     F(Token) \
     F(ASTNode) \
     F(InputCharacter) \
+    F(Allocations) \
     F(Line)
 
 class Statistics {
